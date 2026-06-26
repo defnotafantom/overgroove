@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenze — Gruppo Danza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-floor:#15161b;
+    --bg-panel:#1d1f26;
+    --bg-panel-2:#262932;
+    --ink:#f4f1ea;
+    --ink-muted:#9b9890;
+    --amber:#ffb347;
+    --green:#6fcf97;
+    --coral:#ff6b6b;
+    --line: rgba(244,241,234,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,179,71,0.10), transparent 60%),
+      var(--bg-floor);
+    color:var(--ink);
+    font-family:'Work Sans', system-ui, sans-serif;
+    min-height:100vh;
+  }
+  h1,h2,.display{
+    font-family:'Bebas Neue', system-ui, sans-serif;
+    letter-spacing:0.03em;
+    font-weight:400;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .app{ max-width:1080px; margin:0 auto; padding:0 16px 48px; }
+  .hidden{ display:none !important; }
+
+  /* ---------- HEADER ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:16px 4px;
+    background:linear-gradient(to bottom, rgba(21,22,27,0.97), rgba(21,22,27,0.88));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .dot{
+    width:10px; height:10px; border-radius:50%; flex:none;
+    background:var(--amber); box-shadow:0 0 12px 2px rgba(255,179,71,0.7);
+  }
+  .brand h1{ font-size:1.7rem; margin:0; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tagline{ margin:2px 0 0; font-size:0.78rem; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .topbar-right{ display:flex; align-items:center; gap:10px; flex:none; }
+  .clock{ color:var(--ink-muted); font-size:0.8rem; }
+  .icon-btn{
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink);
+    width:36px; height:36px; border-radius:10px; font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ border-color:var(--amber); }
+
+  /* ---------- DAY TABS ---------- */
+  .day-tabs{
+    display:flex; gap:8px; overflow-x:auto; padding:16px 4px 4px;
+    scrollbar-width:thin;
+  }
+  .day-tab{
+    flex:none; background:var(--bg-panel); border:1px solid var(--line); color:var(--ink-muted);
+    padding:8px 14px; border-radius:999px; cursor:pointer; font-size:0.85rem; font-weight:600;
+    white-space:nowrap;
+  }
+  .day-tab.active{
+    background:rgba(255,179,71,0.12); border-color:var(--amber); color:var(--amber);
+  }
+
+  /* ---------- HERO / VERDICT ---------- */
+  .hero{ margin-top:16px; background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:20px; }
+  .hero-top{ display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start; }
+  .hero-day{ font-size:1.6rem; margin:0 0 10px; }
+  .verdict-box{
+    flex:none; width:150px; height:110px; border-radius:14px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border:2px solid var(--line); text-align:center;
+  }
+  .verdict-box .verdict-word{ font-family:'Bebas Neue'; font-size:2.1rem; line-height:1; }
+  .verdict-box .verdict-sub{ font-size:0.7rem; color:var(--ink-muted); margin-top:4px; }
+  .verdict-box.go{ border-color:var(--green); box-shadow:0 0 26px rgba(111,207,151,0.25); }
+  .verdict-box.go .verdict-word{ color:var(--green); }
+  .verdict-box.no{ border-color:var(--coral); box-shadow:0 0 26px rgba(255,107,107,0.2); }
+  .verdict-box.no .verdict-word{ color:var(--coral); }
+  .verdict-box.pending{ border-color:var(--ink-muted); }
+  .verdict-box.pending .verdict-word{ color:var(--ink-muted); font-size:1.3rem; }
+  .hero-info{ flex:1; min-width:220px; }
+  .hero-info p{ margin:0 0 8px; }
+  .hero-info .best-slot{ font-size:1.15rem; font-weight:600; color:var(--amber); }
+  .hero-info .voted-line{ font-size:0.82rem; color:var(--ink-muted); }
+
+  .tally{ margin-top:18px; }
+  .tally-row{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .tally-label{ width:78px; flex:none; font-size:0.78rem; color:var(--ink-muted); }
+  .mono.tally-label{ font-size:0.75rem; }
+  .tally-track{ flex:1; height:14px; background:var(--bg-panel-2); border-radius:7px; overflow:hidden; }
+  .tally-fill{ height:100%; background:var(--ink-muted); border-radius:7px; transition:width .25s ease; }
+  .tally-fill.best{ background:var(--amber); box-shadow:0 0 10px rgba(255,179,71,0.6); }
+  .tally-count{ width:34px; flex:none; text-align:right; font-size:0.78rem; color:var(--ink-muted); }
+
+  /* ---------- DASHBOARD GRID ---------- */
+  .dashboard-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-top:16px; }
+  @media (max-width:760px){ .dashboard-grid{ grid-template-columns:1fr; } }
+  .card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:20px; }
+  .card h2{ font-size:1.25rem; margin:0 0 10px; }
+  .hint{ font-size:0.82rem; color:var(--ink-muted); margin:0 0 14px; }
+  .hint.small{ font-size:0.74rem; margin-top:10px; }
+
+  .vote-controls{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; align-items:center; }
+  select, input[type=text], input[type=password], textarea{
+    background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink);
+    border-radius:10px; padding:9px 12px; font-family:inherit; font-size:0.9rem;
+  }
+  select{ min-width:160px; }
+  .quick-actions{ display:flex; gap:8px; }
+  .ghost-btn{
+    background:transparent; border:1px solid var(--line); color:var(--ink-muted);
+    padding:8px 12px; border-radius:10px; cursor:pointer; font-size:0.8rem;
+  }
+  .ghost-btn:hover{ border-color:var(--amber); color:var(--amber); }
+  .primary-btn{
+    background:var(--amber); border:none; color:#1a1208; font-weight:700;
+    padding:10px 16px; border-radius:10px; cursor:pointer; font-size:0.9rem;
+  }
+  .primary-btn:hover{ filter:brightness(1.08); }
+  .link-btn{
+    background:none; border:none; color:var(--amber); cursor:pointer; font-size:0.9rem; padding:4px 0;
+  }
+
+  .slot-pills{ display:flex; flex-wrap:wrap; gap:8px; }
+  .slot-pill{
+    border:1px solid var(--line); background:var(--bg-panel-2); color:var(--ink-muted);
+    padding:9px 12px; border-radius:10px; cursor:pointer; font-size:0.82rem; font-family:'IBM Plex Mono', monospace;
+  }
+  .slot-pill.active{
+    background:rgba(255,179,71,0.16); border-color:var(--amber); color:var(--amber); font-weight:600;
+  }
+  .slot-pill[disabled]{ opacity:0.4; cursor:not-allowed; }
+  .save-status{ min-height:18px; font-size:0.78rem; color:var(--green); margin:10px 0 0; }
+
+  .side-col{ display:flex; flex-direction:column; gap:16px; }
+  .announcements-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .announcement-item{ background:var(--bg-panel-2); border-radius:10px; padding:10px 12px; font-size:0.85rem; position:relative; }
+  .announcement-item .a-date{ display:block; font-size:0.68rem; color:var(--ink-muted); margin-top:4px; }
+  .announcement-item .del-x{ position:absolute; top:6px; right:8px; cursor:pointer; color:var(--ink-muted); background:none; border:none; }
+  .announce-admin{ display:flex; flex-direction:column; gap:8px; }
+  .announce-admin textarea{ resize:vertical; min-height:54px; }
+  .empty-note{ color:var(--ink-muted); font-size:0.85rem; }
+
+  .playlist-card iframe{ width:100%; border:none; border-radius:12px; }
+  .playlist-placeholder{ color:var(--ink-muted); font-size:0.85rem; }
+
+  /* ---------- MODERATION TABLE ---------- */
+  .mod-card{ margin-top:16px; }
+  .mod-panel{ margin-top:14px; }
+  .table-scroll{ overflow-x:auto; }
+  table{ border-collapse:collapse; width:100%; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; }
+  th,td{ padding:7px 9px; border-bottom:1px solid var(--line); text-align:center; white-space:nowrap; }
+  th{ color:var(--ink-muted); font-weight:500; }
+  td.member-name{ text-align:left; color:var(--ink); }
+  td.yes{ color:var(--green); }
+  td.no{ color:var(--ink-muted); opacity:0.4; }
+  td.updated{ color:var(--ink-muted); font-size:0.7rem; }
+  .flag-icon{ color:var(--coral); margin-left:4px; }
+  .not-voted-badge{ color:var(--coral); font-style:italic; font-size:0.72rem; }
+
+  /* ---------- SETTINGS OVERLAY ---------- */
+  .settings-overlay{
+    position:fixed; inset:0; background:rgba(10,10,12,0.6);
+    display:flex; align-items:flex-start; justify-content:flex-end; z-index:50; padding:16px;
+  }
+  .settings-panel{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:16px;
+    width:100%; max-width:380px; padding:22px; position:relative; max-height:90vh; overflow-y:auto;
+  }
+  .close-btn{ position:absolute; top:14px; right:14px; }
+  .settings-panel h2{ font-size:1.2rem; margin:0 0 8px; }
+  .settings-panel label{ display:block; font-size:0.78rem; color:var(--ink-muted); margin:14px 0 6px; }
+  .settings-panel input{ width:100%; }
+  .member-inputs{ display:flex; flex-direction:column; gap:6px; }
+  .error-text{ color:var(--coral); font-size:0.8rem; margin-top:8px; }
+
+  .footer{ margin-top:28px; text-align:center; }
+  .footer p{ color:var(--ink-muted); font-size:0.74rem; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <h1 id="groupName">Il Nostro Gruppo</h1>
+        <p class="tagline" id="groupTagline">Presenze, orari e tutto il resto — in un posto solo.</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="clock mono" id="clock">--:--</span>
+      <button class="icon-btn" id="settingsBtn" title="Impostazioni organizzatore">⚙</button>
+    </div>
+  </header>
+
+  <nav class="day-tabs" id="dayTabs"></nav>
+
+  <section class="hero" id="heroSection"></section>
+
+  <section class="dashboard-grid">
+    <div class="card vote-card">
+      <h2>Vota la tua disponibilità</h2>
+      <p class="hint">Scegli il tuo nome, poi tocca le fasce in cui ci sei. Ogni fascia dura un'ora — selezionarla significa "libero per tutta quell'ora".</p>
+      <div class="vote-controls">
+        <select id="memberSelect"></select>
+        <div class="quick-actions">
+          <button class="ghost-btn" id="selectAllBtn">Tutte disponibili</button>
+          <button class="ghost-btn" id="selectNoneBtn">Nessuna</button>
+        </div>
+      </div>
+      <div class="slot-pills" id="slotPills"></div>
+      <p class="save-status" id="saveStatus"></p>
+    </div>
+
+    <div class="side-col">
+      <div class="card board-card">
+        <h2>Bacheca avvisi</h2>
+        <div class="announcements-list" id="announcementsList"></div>
+        <div class="announce-admin hidden" id="announceAdmin">
+          <textarea id="newAnnouncement" placeholder="Scrivi un avviso per il gruppo..."></textarea>
+          <button class="primary-btn" id="addAnnouncementBtn">Pubblica avviso</button>
+        </div>
+      </div>
+
+      <div class="card playlist-card">
+        <h2>La nostra playlist</h2>
+        <div id="playlistEmbed"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card mod-card">
+    <button class="link-btn" id="toggleModBtn">Mostra dettaglio voti e moderazione ▾</button>
+    <div class="mod-panel hidden" id="modPanel">
+      <div class="table-scroll">
+        <table id="modTable"></table>
+      </div>
+      <p class="hint small">⚠ = disponibilità indicata per tutta la giornata (10 fasce su 10). Spesso è genuino, ma è il primo posto dove dare un'occhiata in caso di dubbi.</p>
+    </div>
+  </section>
+
+  <div class="settings-overlay hidden" id="settingsOverlay">
+    <div class="settings-panel">
+      <button class="icon-btn close-btn" id="closeSettingsBtn">✕</button>
+      <div id="pinGate">
+        <h2>Accesso organizzatore</h2>
+        <p class="hint">Inserisci il PIN per modificare nomi, titolo e playlist.</p>
+        <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN">
+        <button class="primary-btn" id="unlockBtn" style="margin-top:10px;">Sblocca</button>
+        <p class="error-text hidden" id="pinError">PIN errato.</p>
+      </div>
+      <div class="hidden" id="settingsFields">
+        <h2>Impostazioni</h2>
+        <label>Nome del gruppo</label>
+        <input id="inputGroupName" type="text">
+        <label>Sottotitolo</label>
+        <input id="inputTagline" type="text">
+        <label>Nomi dei membri (8)</label>
+        <div class="member-inputs" id="memberInputs"></div>
+        <label>Link playlist (Spotify o YouTube)</label>
+        <input id="inputPlaylist" type="text" placeholder="https://open.spotify.com/... o youtube.com">
+        <button class="primary-btn" id="saveSettingsBtn" style="margin-top:16px;">Salva impostazioni</button>
+        <p class="save-status" id="saveSettingsStatus"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Quorum per andare: metà del gruppo + 1. Tutti gli orari sono in ora italiana (Europe/Rome), indipendentemente da dove si trova chi vota.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+
+  const TIMEZONE = 'Europe/Rome';
+  const ADMIN_PIN = '2468'; 
+  const SLOT_HOURS = [10,11,12,13,14,15,16,17,18,19]; 
+  const WEEKDAY_NAMES = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+
+  const state = {
+    settings: null,
+    announcements: [],
+    days: [],
+    currentDayIdx: 0,
+    currentMemberIdx: null,
+    votes: [], 
+    isAdmin: false
+  };
+
+  function pad(n){ return n.toString().padStart(2,'0'); }
+
+  function buildNextDays(n){
+    const fmt = new Intl.DateTimeFormat('en-CA', {timeZone: TIMEZONE, year:'numeric', month:'2-digit', day:'2-digit'});
+    const [y,m,d] = fmt.format(new Date()).split('-').map(Number);
+    const base = Date.UTC(y, m-1, d);
+    const days = [];
+    for(let i=0;i<n;i++){
+      const dt = new Date(base + i*86400000);
+      const wd = dt.getUTCDay();
+      const yy = dt.getUTCFullYear(), mm = dt.getUTCMonth()+1, dd = dt.getUTCDate();
+      days.push({
+        key: `${yy}-${pad(mm)}-${pad(dd)}`,
+        label: `${WEEKDAY_NAMES[wd]} ${pad(dd)}/${pad(mm)}`,
+        short: WEEKDAY_NAMES[wd].slice(0,3)
+      });
+    }
+    return days;
+  }
+
+  function updateClock(){
+    const fmt = new Intl.DateTimeFormat('it-IT', {timeZone: TIMEZONE, hour:'2-digit', minute:'2-digit'});
+    document.getElementById('clock').textContent = fmt.format(new Date()) + ' (Italia)';
+  }
+
+  // ---------- MOCK / ADAPTER PER PRORETI E WINDOW.STORAGE ----------
+  const storageAdapter = {
+    async get(key, isGlobal) {
+      if (window.storage && typeof window.storage.get === 'function') {
+        return await window.storage.get(key, isGlobal);
+      }
+      return { value: localStorage.getItem(key) };
+    },
+    async set(key, value, isGlobal) {
+      if (window.storage && typeof window.storage.set === 'function') {
+        return await window.storage.set(key, value, isGlobal);
+      }
+      localStorage.setItem(key, value);
+    }
+  };
+
+  // ---------- STORAGE ----------
+  async function loadSettings(){
+    try{
+      const r = await storageAdapter.get('settings', true);
+      const parsed = JSON.parse(r.value);
+      if(!parsed.members || parsed.members.length !== 8) throw new Error('formato non valido');
+      return parsed;
+    }catch(e){
+      const defaults = {
+        groupName: 'Il Nostro Gruppo',
+        tagline: "Presenze, orari e tutto il resto — in un posto solo.",
+        members: ['Membro 1','Membro 2','Membro 3','Membro 4','Membro 5','Membro 6','Membro 7','Membro 8'],
+        playlistUrl: ''
+      };
+      try{ await storageAdapter.set('settings', JSON.stringify(defaults), true); }catch(e2){}
+      return defaults;
+    }
+  }
+
+  async function saveSettings(settings){
+    await storageAdapter.set('settings', JSON.stringify(settings), true);
+  }
+
+  async function loadAnnouncements(){
+    try{
+      const r = await storageAdapter.get('announcements', true);
+      return JSON.parse(r.value) || [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  async function saveAnnouncements(list){
+    await storageAdapter.set('announcements', JSON.stringify(list), true);
+  }
+
+  async function loadVotesForDay(dayKey){
+    const members = state.settings.members;
+    return Promise.all(members.map(async (_, idx) => {
+      try{
+        const r = await storageAdapter.get(`votes:${dayKey}:${idx}`, true);
+        return JSON.parse(r.value);
+      }catch(e){
+        return null;
+      }
+    }));
+  }
+
+  async function saveVote(dayKey, idx, slots){
+    const payload = { slots, updatedAt: new Date().toISOString() };
+    await storageAdapter.set(`votes:${dayKey}:${idx}`, JSON.stringify(payload), true);
+    return payload;
+  }
+
+  async function loadLastMember(){
+    try{
+      const r = await storageAdapter.get('last_member_index', false);
+      return JSON.parse(r.value);
+    }catch(e){ return null; }
+  }
+
+  async function saveLastMember(idx){
+    try{ await storageAdapter.set('last_member_index', JSON.stringify(idx), false); }catch(e){}
+  }
+
+  // ---------- RESULT LOGIC ----------
+  function computeResults(){
+    const total = state.settings.members.length;
+    const quorum = Math.floor(total/2)+1;
+    const counts = SLOT_HOURS.map((_, slotIdx) =>
+      state.votes.reduce((acc, v) => acc + (v && v.slots[slotIdx] ? 1 : 0), 0)
+    );
+    let best = -1, bestSlots = [], reachedAny = false;
+    counts.forEach((c, idx) => {
+      if(c >= quorum){
+        reachedAny = true;
+        if(c > best){ best = c; bestSlots = [idx]; }
+        else if(c === best){ bestSlots.push(idx); }
+      }
+    });
+    let fallback = null;
+    if(!reachedAny){
+      let max = -1, idxs = [];
+      counts.forEach((c, idx) => {
+        if(c > max){ max = c; idxs = [idx]; }
+        else if(c === max && max > 0){ idxs.push(idx); }
+      });
+      fallback = { count: max, idxs };
+    }
+    const votedCount = state.votes.filter(v => v !== null).length;
+    return { total, quorum, counts, go: reachedAny, bestCount: best, bestSlots, fallback, votedCount };
+  }
+
+  function slotLabel(idx){
+    const h = SLOT_HOURS[idx];
+    return `${h}:00–${h+1}:00`;
+  }
+
+  // ---------- RENDER ----------
+  function renderDayTabs(){
+    const el = document.getElementById('dayTabs');
+    el.innerHTML = '';
+    state.days.forEach((d, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'day-tab' + (idx === state.currentDayIdx ? ' active' : '');
+      btn.textContent = idx === 0 ? `Oggi · ${d.short} ${d.key.slice(8,10)}/${d.key.slice(5,7)}` : `${d.short} ${d.key.slice(8,10)}/${d.key.slice(5,7)}`;
+      btn.onclick = () => switchDay(idx);
+      el.appendChild(btn);
+    });
+  }
+
+  function renderHero(){
+    const day = state.days[state.currentDayIdx];
+    const res = computeResults();
+    const el = document.getElementById('heroSection');
+
+    let verdictClass = 'pending', verdictWord = 'IN ATTESA', sub = '';
+    if(res.votedCount === 0){
+      verdictClass = 'pending'; verdictWord = 'NESSUN VOTO'; sub = 'ancora';
+    } else if(res.go){
+      verdictClass = 'go'; verdictWord = 'SÌ'; sub = 'si prova';
+    } else {
+      verdictClass = 'no'; verdictWord = 'NO'; sub = 'per ora';
+    }
+
+    let infoHtml = '';
+    if(res.votedCount === 0){
+      infoHtml = `<p>Nessuno ha ancora votato la propria disponibilità per questo giorno.</p>`;
+    } else if(res.go){
+      const labels = res.bestSlots.map(slotLabel).join(' / ');
+      infoHtml = `<p class="best-slot">${labels}</p><p>Orario più votato — ${res.bestCount}/${res.total} disponibili (quorum: ${res.quorum}/${res.total}).</p>`;
+    } else if(res.fallback && res.fallback.count > 0){
+      const labels = res.fallback.idxs.map(slotLabel).join(' / ');
+      infoHtml = `<p>Quorum (${res.quorum}/${res.total}) non raggiunto su nessuna fascia.</p><p>Più vicina: <strong>${labels}</strong> con ${res.fallback.count}/${res.total}.</p>`;
+    } else {
+      infoHtml = `<p>Quorum (${res.quorum}/${res.total}) non raggiunto su nessuna fascia.</p>`;
+    }
+
+    const nonVoters = state.settings.members.filter((_, i) => !state.votes[i]);
+    const votedLine = nonVoters.length > 0
+      ? `Hanno votato ${res.votedCount}/${res.total}. Mancano: ${nonVoters.join(', ')}.`
+      : `Hanno votato tutti e ${res.total}.`;
+
+    const tallyHtml = SLOT_HOURS.map((h, idx) => {
+      const c = res.counts[idx];
+      const pct = res.total > 0 ? (c/res.total*100) : 0;
+      const isBest = res.go && res.bestSlots.includes(idx);
+      return `<div class="tally-row">
+        <span class="tally-label mono">${h}:00</span>
+        <div class="tally-track"><div class="tally-fill${isBest?' best':''}" style="width:${pct}%"></div></div>
+        <span class="tally-count">${c}/${res.total}</span>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="hero-top">
+        <div class="verdict-box ${verdictClass}">
+          <div class="verdict-word">${verdictWord}</div>
+          <div class="verdict-sub">${sub}</div>
+        </div>
+        <div class="hero-info">
+          <h2 class="hero-day">${day.label}</h2>
+          ${infoHtml}
+          <p class="voted-line">${votedLine}</p>
+        </div>
+      </div>
+      <div class="tally">${tallyHtml}</div>
+    `;
+  }
+
+  function renderMemberSelect(){
+    const sel = document.getElementById('memberSelect');
+    sel.innerHTML = '<option value="">Sei...</option>' +
+      state.settings.members.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+    sel.value = state.currentMemberIdx === null ? '' : state.currentMemberIdx;
+  }
+
+  function renderSlotPills(){
+    const el = document.getElementById('slotPills');
+    const disabled = state.currentMemberIdx === null;
+    const myVote = disabled ? null : state.votes[state.currentMemberIdx];
+    const mySlots = myVote ? myVote.slots : Array(10).fill(false);
+    el.innerHTML = SLOT_HOURS.map((h, idx) => {
+      const active = mySlots[idx];
+      return `<button class="slot-pill${active?' active':''}" ${disabled?'disabled':''} data-idx="${idx}">${h}–${h+1}</button>`;
+    }).join('');
+    el.querySelectorAll('.slot-pill').forEach(btn => {
+      btn.onclick = () => toggleSlot(parseInt(btn.dataset.idx));
+    });
+  }
+
+  function renderAnnouncements(){
+    const el = document.getElementById('announcementsList');
+    if(state.announcements.length === 0){
+      el.innerHTML = '<p class="empty-note">Nessun avviso al momento.</p>';
+    } else {
+      el.innerHTML = state.announcements.slice().reverse().map(a => `
+        <div class="announcement-item">
+          ${state.isAdmin ? `<button class="del-x" data-id="${a.id}">✕</button>` : ''}
+          <div>${escapeHtml(a.text)}</div>
+          <span class="a-date">${a.date}</span>
+        </div>
+      `).join('');
+      if(state.isAdmin){
+        el.querySelectorAll('.del-x').forEach(btn => {
+          btn.onclick = async () => {
+            state.announcements = state.announcements.filter(a => a.id !== btn.dataset.id);
+            await saveAnnouncements(state.announcements);
+            renderAnnouncements();
+          };
+        });
+      }
+    }
+    document.getElementById('announceAdmin').classList.toggle('hidden', !state.isAdmin);
+  }
+
+  function renderPlaylist(){
+    const el = document.getElementById('playlistEmbed');
+    const url = state.settings.playlistUrl;
+    const embed = getEmbedUrl(url);
+    if(embed){
+      el.innerHTML = `<iframe src="${embed}" height="152" loading="lazy" allow="encrypted-media"></iframe>`;
+    } else if(url){
+      el.innerHTML = `<p class="playlist-placeholder">Link esterno impostato. <a href="${url}" target="_blank" style="color:var(--amber);">Apri la playlist esterna</a></p>`;
+    } else {
+      el.innerHTML = `<p class="playlist-placeholder">Nessuna playlist configurata. ${state.isAdmin ? 'Aggiungila nelle impostazioni ⚙' : ''}</p>`;
+    }
+  }
+
+  function renderModTable(){
+    const table = document.getElementById('modTable');
+    const headerSlots = SLOT_HOURS.map(h => `<th>${h}</th>`).join('');
+    const rows = state.settings.members.map((name, i) => {
+      const v = state.votes[i];
+      if(!v){
+        return `<tr><td class="member-name">${name}</td><td colspan="${SLOT_HOURS.length}"><span class="not-voted-badge">non ha ancora votato</span></td><td class="updated">—</td></tr>`;
+      }
+      const allTrue = v.slots.every(s => s);
+      const cells = v.slots.map(s => `<td class="${s?'yes':'no'}">${s?'✓':'·'}</td>`).join('');
+      const upd = new Date(v.updatedAt).toLocaleString('it-IT', {timeZone: TIMEZONE, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+      return `<tr><td class="member-name">${name}${allTrue?'<span class="flag-icon" title="Disponibilità su tutte le fasce">⚠</span>':''}</td>${cells}<td class="updated">${upd}</td></tr>`;
+    }).join('');
+    table.innerHTML = `<thead><tr><th style="text-align:left;">Nome</th>${headerSlots}<th>Agg.</th></tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function renderMemberInputsInSettings(){
+    const el = document.getElementById('memberInputs');
+    el.innerHTML = state.settings.members.map((m, i) => `<input type="text" data-midx="${i}" value="${escapeHtml(m)}">`).join('');
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function getEmbedUrl(url){
+    if(!url) return null;
+    try{
+      const u = new URL(url);
+      if(u.hostname.includes('spotify.com')){
+        const parts = u.pathname.split('/').filter(Boolean);
+        const types = ['playlist','track','album','show','episode','artist'];
+        const typeIdx = parts.findIndex(p => types.includes(p));
+        if(typeIdx >= 0 && parts[typeIdx+1]){
+          return `https://open.spotify.com/embed/${parts[typeIdx]}/${parts[typeIdx+1]}`;
+        }
+      }
+      if(u.hostname.includes('youtube.com')){
+        const v = u.searchParams.get('v');
+        if(v) return `https://www.youtube.com/embed/${v}`;
+        const list = u.searchParams.get('list');
+        if(list) return `https://www.youtube.com/embed/videoseries?list=${list}`;
+      }
+      if(u.hostname.includes('youtu.be')){
+        const id = u.pathname.split('/').filter(Boolean)[0];
+        if(id) return `https://www.youtube.com/embed/${id}`;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  // ---------- ACTIONS ----------
+  async function switchDay(idx){
+    state.currentDayIdx = idx;
+    renderDayTabs();
+    document.getElementById('heroSection').innerHTML = '<p class="hint">Caricamento...</p>';
+    state.votes = await loadVotesForDay(state.days[idx].key);
+    renderHero();
+    renderSlotPills();
+    renderModTable();
+  }
+
+  async function toggleSlot(slotIdx){
+    if(state.currentMemberIdx === null) return;
+    const idx = state.currentMemberIdx;
+    const current = state.votes[idx] ? state.votes[idx].slots.slice() : Array(10).fill(false);
+    current[slotIdx] = !current[slotIdx];
+    await persistVote(idx, current);
+  }
+
+  async function persistVote(idx, slots){
+    const dayKey = state.days[state.currentDayIdx].key;
+    const status = document.getElementById('saveStatus');
+    status.textContent = 'Salvataggio...';
+    try{
+      const payload = await saveVote(dayKey, idx, slots);
+      state.votes[idx] = payload;
+      renderSlotPills();
+      renderHero();
+      renderModTable();
+      status.textContent = '✓ Salvato';
+      setTimeout(() => { if(status.textContent === '✓ Salvato') status.textContent=''; }, 2000);
+    }catch(e){
+      status.textContent = 'Errore nel salvataggio, riprova.';
+    }
+  }
+
+  function wireEvents(){
+    document.getElementById('memberSelect').onchange = async (e) => {
+      const v = e.target.value;
+      state.currentMemberIdx = v === '' ? null : parseInt(v);
+      if(state.currentMemberIdx !== null) await saveLastMember(state.currentMemberIdx);
+      renderSlotPills();
+    };
+
+    document.getElementById('selectAllBtn').onclick = () => {
+      if(state.currentMemberIdx === null) return;
+      persistVote(state.currentMemberIdx, Array(10).fill(true));
+    };
+    document.getElementById('selectNoneBtn').onclick = () => {
+      if(state.currentMemberIdx === null) return;
+      persistVote(state.currentMemberIdx, Array(10).fill(false));
+    };
+
+    document.getElementById('toggleModBtn').onclick = () => {
+      const panel = document.getElementById('modPanel');
+      const btn = document.getElementById('toggleModBtn');
+      const willShow = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden');
+      btn.textContent = willShow ? 'Nascondi dettaglio voti e moderazione ▾' : 'Mostra dettaglio voti e moderazione ▾';
+    };
+
+    document.getElementById('settingsBtn').onclick = () => {
+      document.getElementById('settingsOverlay').classList.remove('hidden');
+    };
+    document.getElementById('closeSettingsBtn').onclick = () => {
+      document.getElementById('settingsOverlay').classList.add('hidden');
+    };
+    document.getElementById('settingsOverlay').onclick = (e) => {
+      if(e.target.id === 'settingsOverlay') e.currentTarget.classList.add('hidden');
+    };
+
+    document.getElementById('unlockBtn').onclick = () => {
+      const val = document.getElementById('pinInput').value;
+      if(val === ADMIN_PIN){
+        state.isAdmin = true;
+        document.getElementById('pinGate').classList.add('hidden');
+        document.getElementById('settingsFields').classList.remove('hidden');
+        document.getElementById('inputGroupName').value = state.settings.groupName;
+        document.getElementById('inputTagline').value = state.settings.tagline;
+        document.getElementById('inputPlaylist').value = state.settings.playlistUrl;
+        renderMemberInputsInSettings();
+        renderAnnouncements();
+        renderPlaylist();
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+      }
+    };
+
+    document.getElementById('saveSettingsBtn').onclick = async () => {
+      const newSettings = {
+        groupName: document.getElementById('inputGroupName').value.trim() || state.settings.groupName,
+        tagline: document.getElementById('inputTagline').value.trim(),
+        members: Array.from(document.querySelectorAll('#memberInputs input')).map(i => i.value.trim() || 'Membro'),
+        playlistUrl: document.getElementById('inputPlaylist').value.trim()
+      };
+      state.settings = newSettings;
+      await saveSettings(newSettings);
+      document.getElementById('groupName').textContent = newSettings.groupName;
+      document.getElementById('groupTagline').textContent = newSettings.tagline;
+      renderMemberSelect();
+      renderPlaylist();
+      renderModTable();
+      document.getElementById('saveSettingsStatus').textContent = '✓ Impostazioni salvate';
+      setTimeout(() => { document.getElementById('saveSettingsStatus').textContent=''; }, 2500);
+    };
+
+    document.getElementById('addAnnouncementBtn').onclick = async () => {
+      const ta = document.getElementById('newAnnouncement');
+      const text = ta.value.trim();
+      if(!text) return;
+      const dateLabel = new Intl.DateTimeFormat('it-IT', {timeZone: TIMEZONE, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}).format(new Date());
+      state.announcements.push({ id: 'a' + Date.now(), text, date: dateLabel });
+      await saveAnnouncements(state.announcements);
+      ta.value = '';
+      renderAnnouncements();
+    };
+  }
+
+  // ---------- INIT ----------
+  async function init(){
+    state.days = buildNextDays(7);
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    state.settings = await loadSettings();
+    state.announcements = await loadAnnouncements();
+
+    document.getElementById('groupName').textContent = state.settings.groupName;
+    document.getElementById('groupTagline').textContent = state.settings.tagline;
+
+    const lastMember = await loadLastMember();
+    if(lastMember !== null && lastMember < state.settings.members.length){
+      state.currentMemberIdx = lastMember;
+    }
+
+    wireEvents();
+    
+    // Inizializza sul primo giorno utile (Oggi)
+    await switchDay(0);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>

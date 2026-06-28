@@ -77,6 +77,13 @@
   .day-tab.active{
     background:rgba(242,6,3,0.12); border-color:var(--accent); color:var(--accent);
   }
+  .icon-btn.notif-on{ border-color:var(--green); color:var(--green); }
+  .icon-btn.notif-off{ border-color:var(--alert); color:var(--alert); }
+  .hint-banner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:12px;
+    padding:10px 14px; font-size:0.78rem; color:var(--ink-muted); margin-top:14px;
+  }
 
   /* ---------- HERO / VERDICT ---------- */
   .hero{ margin-top:16px; background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:20px; }
@@ -189,6 +196,8 @@
   .settings-panel label{ display:block; font-size:0.78rem; color:var(--ink-muted); margin:14px 0 6px; }
   .settings-panel input{ width:100%; }
   .member-inputs{ display:flex; flex-direction:column; gap:6px; }
+  .member-row{ display:flex; gap:6px; }
+  .member-row input{ flex:1; min-width:0; }
   .error-text{ color:var(--alert); font-size:0.8rem; margin-top:8px; }
 
   .footer{ margin-top:28px; text-align:center; }
@@ -208,20 +217,25 @@
     </div>
     <div class="topbar-right">
       <span class="clock mono" id="clock">--:--</span>
+      <button class="icon-btn" id="notifBtn" title="Attiva notifiche">🔔</button>
       <button class="icon-btn" id="settingsBtn" title="Impostazioni organizzatore">⚙</button>
     </div>
   </header>
 
   <nav class="day-tabs" id="dayTabs"></nav>
 
+  <div class="hint-banner hidden" id="notifInfoBanner">
+    💡 Tocca 🔔 in alto per essere avvisato in automatico quando le prove vengono confermate o se ti scordi di votare — senza bisogno di controllare la pagina. Funziona solo se consenti le notifiche al browser e lasci questa pagina aperta (va bene anche in un'altra scheda o in background).
+    <button class="link-btn" id="dismissNotifBanner">Ho capito</button>
+  </div>
+
   <section class="hero" id="heroSection"></section>
 
   <section class="dashboard-grid">
     <div class="card vote-card">
       <h2>Vota la tua disponibilità</h2>
-      <p class="hint">Scegli il tuo nome, poi tocca le fasce in cui ci sei. Ogni fascia dura un'ora — selezionarla significa "libero per tutta quell'ora".</p>
+      <p class="hint" id="voteIdentityLine">Accedi con il tuo numero di telefono per votare.</p>
       <div class="vote-controls">
-        <select id="memberSelect"></select>
         <div class="quick-actions">
           <button class="ghost-btn" id="selectAllBtn">Tutte disponibili</button>
           <button class="ghost-btn" id="selectNoneBtn">Nessuna</button>
@@ -233,11 +247,12 @@
 
     <div class="side-col">
       <div class="card board-card">
-        <h2>Bacheca avvisi</h2>
+        <h2>Bacheca</h2>
+        <p class="hint">Scrivi un messaggio per il gruppo — resta visibile a tutti, con autore e orario.</p>
         <div class="announcements-list" id="announcementsList"></div>
-        <div class="announce-admin hidden" id="announceAdmin">
-          <textarea id="newAnnouncement" placeholder="Scrivi un avviso per il gruppo..."></textarea>
-          <button class="primary-btn" id="addAnnouncementBtn">Pubblica avviso</button>
+        <div class="announce-admin hidden" id="announceBox">
+          <textarea id="newAnnouncement" placeholder="Scrivi un messaggio per il gruppo..."></textarea>
+          <button class="primary-btn" id="addAnnouncementBtn">Invia messaggio</button>
         </div>
       </div>
 
@@ -274,7 +289,9 @@
         <input id="inputGroupName" type="text">
         <label>Sottotitolo</label>
         <input id="inputTagline" type="text">
-        <label>Nomi dei membri (8)</label>
+        <label>Il tuo numero di telefono (admin)</label>
+        <input id="inputAdminPhone" type="tel" placeholder="Es. 333 1234567">
+        <label>Membri: nome e numero di telefono (8)</label>
         <div class="member-inputs" id="memberInputs"></div>
         <label>Link playlist (Spotify o YouTube)</label>
         <input id="inputPlaylist" type="text" placeholder="https://open.spotify.com/playlist/...">
@@ -284,8 +301,20 @@
     </div>
   </div>
 
+  <div class="settings-overlay hidden" id="loginOverlay" style="z-index:40; justify-content:center;">
+    <div class="settings-panel" style="max-width:340px;">
+      <h2>Accedi</h2>
+      <p class="hint">Inserisci il tuo numero di telefono. Il sistema riconosce chi sei in automatico — non serve scegliere il nome da una lista.</p>
+      <input id="loginPhoneInput" type="tel" inputmode="tel" placeholder="Es. 333 1234567">
+      <button class="primary-btn" id="loginBtn" style="margin-top:10px; width:100%;">Accedi</button>
+      <p class="error-text hidden" id="loginError">Numero non riconosciuto. Contatta l'organizzatore (Daniele).</p>
+      <p class="hint small" style="margin-top:16px;">Sei l'organizzatore e devi registrare i numeri di tutti? <button class="link-btn" id="openSettingsFromLogin" style="padding:0;">Apri le impostazioni</button></p>
+    </div>
+  </div>
+
   <footer class="footer">
     <p>Quorum per andare: metà del gruppo + 1. Tutti gli orari sono in ora italiana (Europe/Rome), indipendentemente da dove si trova chi vota.</p>
+    <button class="link-btn" id="logoutBtn" style="font-size:0.74rem;">Non sei tu? Cambia utente</button>
   </footer>
 </div>
 
@@ -296,6 +325,11 @@
   const ADMIN_PIN = '2468'; // cambia questo valore per cambiare il PIN — è solo un deterrente, non una vera sicurezza
   const SLOT_HOURS = [10,11,12,13,14,15,16,17,18,19]; // fasce 10-11 ... 19-20
   const WEEKDAY_NAMES = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+  const POLL_INTERVAL_MS = 120000; // controlla aggiornamenti ogni 2 minuti, mentre la pagina è aperta
+  const QUIET_HOUR_START = 22; // niente promemoria-voto dopo le 22
+  const QUIET_HOUR_END = 8;    // e prima delle 8
+  const REMINDER_COOLDOWN_MS = 3 * 3600 * 1000; // non ripetere lo stesso promemoria prima di 3 ore
+  let pollTimer = null;
 
   const state = {
     settings: null,
@@ -304,10 +338,16 @@
     currentDayIdx: 0,
     currentMemberIdx: null,
     votes: [], // array of 8, each {slots:[bool*10], updatedAt} or null, for current day
-    isAdmin: false
+    isAdmin: false,
+    identity: null // { phone, memberIdx, isAdmin, name } una volta loggati su questo dispositivo
   };
 
   function pad(n){ return n.toString().padStart(2,'0'); }
+
+  function italyHour(){
+    const fmt = new Intl.DateTimeFormat('en-GB', {timeZone: TIMEZONE, hour:'2-digit', hour12:false});
+    return parseInt(fmt.format(new Date()), 10);
+  }
 
   function buildNextDays(n){
     const fmt = new Intl.DateTimeFormat('en-CA', {timeZone: TIMEZONE, year:'numeric', month:'2-digit', day:'2-digit'});
@@ -333,19 +373,36 @@
   }
 
   // ---------- STORAGE ----------
+  function migrateSettings(raw){
+    const rawMembers = raw.members || [];
+    const members = rawMembers.map(m => {
+      if(typeof m === 'string') return { name: m, phone: '' };
+      return { name: (m && m.name) || 'Membro', phone: (m && m.phone) || '' };
+    });
+    while(members.length < 8) members.push({ name: 'Membro', phone: '' });
+    return {
+      groupName: raw.groupName || 'Overgroove',
+      tagline: raw.tagline || '',
+      adminPhone: raw.adminPhone || '',
+      members: members.slice(0, 8),
+      playlistUrl: raw.playlistUrl || ''
+    };
+  }
+
   async function loadSettings(){
     try{
       const r = await window.storage.get('settings', true);
       const parsed = JSON.parse(r.value);
       if(!parsed.members || parsed.members.length !== 8) throw new Error('formato non valido');
-      return parsed;
+      return migrateSettings(parsed);
     }catch(e){
-      const defaults = {
+      const defaults = migrateSettings({
         groupName: 'Overgroove',
         tagline: "Presenze, orari, mix — la crew in un posto solo.",
+        adminPhone: '',
         members: ['Alice','Daniele','Elena','Giorgia','Miriam','Miriana','Sofia','Sonia'],
         playlistUrl: ''
-      };
+      });
       try{ await window.storage.set('settings', JSON.stringify(defaults), true); }catch(e2){}
       return defaults;
     }
@@ -386,23 +443,74 @@
     return payload;
   }
 
-  async function loadLastMember(){
+  async function loadStoredPhone(){
     try{
-      const r = await window.storage.get('last_member_index', false);
+      const r = await window.storage.get('device_phone', false);
       return JSON.parse(r.value);
     }catch(e){ return null; }
   }
 
-  async function saveLastMember(idx){
-    try{ await window.storage.set('last_member_index', JSON.stringify(idx), false); }catch(e){}
+  async function saveStoredPhone(phone){
+    try{ await window.storage.set('device_phone', JSON.stringify(phone), false); }catch(e){}
+  }
+
+  async function clearStoredPhone(){
+    try{ await window.storage.delete('device_phone', false); }catch(e){}
+  }
+
+  // Confronto "leggero": confronta solo le ultime cifre, per tollerare prefissi
+  // internazionali scritti in modo diverso (+39, 0039, spazi, ecc). Non è una
+  // vera verifica: chi conosce il numero di qualcuno può accedere come lui.
+  function normalizePhone(str){
+    return (str || '').replace(/[^0-9]/g, '');
+  }
+
+  function phonesMatch(a, b){
+    const da = normalizePhone(a), db = normalizePhone(b);
+    if(da.length < 6 || db.length < 6) return false;
+    const tailLen = Math.min(da.length, db.length, 9);
+    return da.slice(-tailLen) === db.slice(-tailLen);
+  }
+
+  function resolveIdentityFromPhone(phone){
+    const members = state.settings.members;
+    let memberIdx = null;
+    for(let i=0;i<members.length;i++){
+      if(phonesMatch(members[i].phone, phone)){ memberIdx = i; break; }
+    }
+    const isAdmin = phonesMatch(state.settings.adminPhone, phone);
+    if(memberIdx === null && !isAdmin) return null;
+    const name = memberIdx !== null ? members[memberIdx].name : 'Admin';
+    return { phone, memberIdx, isAdmin, name };
+  }
+
+  function applyIdentity(identity){
+    state.identity = identity;
+    state.isAdmin = identity.isAdmin;
+    state.currentMemberIdx = identity.memberIdx;
+    renderVoteIdentity();
+    renderSlotPills();
+    renderAnnouncements();
+    renderPlaylist();
+  }
+
+  function clearIdentity(){
+    state.identity = null;
+    state.isAdmin = false;
+    state.currentMemberIdx = null;
+    renderVoteIdentity();
+    renderSlotPills();
+    renderAnnouncements();
+    renderPlaylist();
+    document.getElementById('loginOverlay').classList.remove('hidden');
   }
 
   // ---------- RESULT LOGIC ----------
-  function computeResults(){
+  function computeResultsFor(votes){
     const total = state.settings.members.length;
     const quorum = Math.floor(total/2)+1;
     const counts = SLOT_HOURS.map((_, slotIdx) =>
-      state.votes.reduce((acc, v) => acc + (v && v.slots[slotIdx] ? 1 : 0), 0)
+      votes.reduce((acc, v) => acc + (v && v.slots[slotIdx] ? 1 : 0), 0)
     );
     let best = -1, bestSlots = [], reachedAny = false;
     counts.forEach((c, idx) => {
@@ -421,8 +529,117 @@
       });
       fallback = { count: max, idxs };
     }
-    const votedCount = state.votes.filter(v => v !== null).length;
+    const votedCount = votes.filter(v => v !== null).length;
     return { total, quorum, counts, go: reachedAny, bestCount: best, bestSlots, fallback, votedCount };
+  }
+
+  function computeResults(){
+    return computeResultsFor(state.votes);
+  }
+
+  // ---------- NOTIFICATIONS ----------
+  // Funzionano solo se: 1) il browser ha concesso il permesso, 2) questa pagina
+  // resta aperta (anche in background o in un'altra scheda). Non sono notifiche
+  // "push" vere e proprie: se la pagina viene chiusa del tutto, non arrivano.
+  function fireNotification(title, body){
+    try{
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification(title, { body });
+      }
+    }catch(e){ /* alcuni contesti sandboxed bloccano le notifiche: ignora */ }
+  }
+
+  function updateNotifBtn(){
+    const btn = document.getElementById('notifBtn');
+    if(!btn) return;
+    btn.classList.remove('notif-on','notif-off');
+    if(!('Notification' in window)){
+      btn.title = 'Notifiche non supportate in questo browser';
+      btn.style.opacity = '0.4';
+      return;
+    }
+    btn.style.opacity = '';
+    if(Notification.permission === 'granted'){
+      btn.classList.add('notif-on');
+      btn.title = 'Notifiche attive — lascia questa pagina aperta';
+    } else if(Notification.permission === 'denied'){
+      btn.classList.add('notif-off');
+      btn.title = 'Notifiche bloccate dal browser';
+    } else {
+      btn.title = 'Attiva notifiche';
+    }
+  }
+
+  async function maybeShowNotifBanner(){
+    const banner = document.getElementById('notifInfoBanner');
+    if(!banner) return;
+    if('Notification' in window && Notification.permission === 'granted') return;
+    let dismissed = false;
+    try{
+      const r = await window.storage.get('notif_banner_dismissed', false);
+      dismissed = JSON.parse(r.value);
+    }catch(e){ dismissed = false; }
+    if(!dismissed) banner.classList.remove('hidden');
+  }
+
+  // Confronta lo stato "confermato" attuale con l'ultimo notificato per quel
+  // giorno (salvato per-utente) e avvisa solo quando cambia qualcosa di nuovo.
+  async function checkConfirmationNotification(day, res){
+    const key = `notif_seen_confirmed:${day.key}`;
+    let prevValue = null;
+    try{
+      const r = await window.storage.get(key, false);
+      prevValue = JSON.parse(r.value);
+    }catch(e){ prevValue = null; }
+
+    if(res.go){
+      const signature = res.bestSlots.join(',') + '|' + res.bestCount;
+      if(prevValue !== signature){
+        const labels = res.bestSlots.map(slotLabel).join(' / ');
+        const dayWord = day.key === state.days[0].key ? 'Oggi' : (state.days[1] && day.key === state.days[1].key ? 'Domani' : day.label);
+        fireNotification('🎸 Prove confermate!', `${dayWord}: ${labels} — ${res.bestCount}/${res.total} disponibili.`);
+        try{ await window.storage.set(key, JSON.stringify(signature), false); }catch(e){}
+      }
+    } else if(prevValue !== null){
+      try{ await window.storage.set(key, JSON.stringify(null), false); }catch(e){}
+    }
+  }
+
+  // Avvisa il membro selezionato su questo dispositivo se non ha ancora votato
+  // per oggi/domani, con un cooldown per non essere ripetitivo.
+  async function maybeSendVoteReminder(day, votes){
+    const key = `notif_last_reminder:${day.key}`;
+    let last = null;
+    try{
+      const r = await window.storage.get(key, false);
+      last = JSON.parse(r.value);
+    }catch(e){ last = null; }
+    const now = Date.now();
+    if(last && (now - last) < REMINDER_COOLDOWN_MS) return;
+    const dayWord = day.key === state.days[0].key ? 'oggi' : 'domani';
+    fireNotification('⏰ Manca il tuo voto', `Non hai ancora votato la disponibilità per ${dayWord}. Vota anche solo per dire che non ci sei!`);
+    try{ await window.storage.set(key, JSON.stringify(now), false); }catch(e){}
+  }
+
+  async function pollForUpdates(){
+    if(!('Notification' in window) || Notification.permission !== 'granted') return;
+    const h = italyHour();
+    const quietNow = (h < QUIET_HOUR_END || h >= QUIET_HOUR_START);
+    for(const day of state.days.slice(0,2)){ // controlla solo oggi e domani
+      let votes;
+      try{ votes = await loadVotesForDay(day.key); }catch(e){ continue; }
+      const res = computeResultsFor(votes);
+      await checkConfirmationNotification(day, res);
+      if(!quietNow && state.currentMemberIdx !== null && !votes[state.currentMemberIdx]){
+        await maybeSendVoteReminder(day, votes);
+      }
+    }
+  }
+
+  function startPolling(){
+    if(pollTimer) return;
+    pollForUpdates();
+    pollTimer = setInterval(pollForUpdates, POLL_INTERVAL_MS);
   }
 
   function slotLabel(idx){
@@ -470,7 +687,7 @@
       infoHtml = `<p>Quorum (${res.quorum}/${res.total}) non raggiunto su nessuna fascia.</p>`;
     }
 
-    const nonVoters = state.settings.members.filter((_, i) => !state.votes[i]);
+    const nonVoters = state.settings.members.filter((_, i) => !state.votes[i]).map(m => m.name);
     const votedLine = nonVoters.length > 0
       ? `Hanno votato ${res.votedCount}/${res.total}. Mancano: ${nonVoters.join(', ')}.`
       : `Hanno votato tutti e ${res.total}.`;
@@ -502,11 +719,16 @@
     `;
   }
 
-  function renderMemberSelect(){
-    const sel = document.getElementById('memberSelect');
-    sel.innerHTML = '<option value="">Sei...</option>' +
-      state.settings.members.map((m, i) => `<option value="${i}">${m}</option>`).join('');
-    sel.value = state.currentMemberIdx === null ? '' : state.currentMemberIdx;
+  function renderVoteIdentity(){
+    const el = document.getElementById('voteIdentityLine');
+    if(!el) return;
+    if(state.identity && state.currentMemberIdx !== null){
+      el.innerHTML = `Stai votando come <strong style="color:var(--accent);">${escapeHtml(state.identity.name)}</strong>. Tocca le fasce in cui ci sei — ogni fascia dura un'ora.`;
+    } else if(state.identity && state.identity.isAdmin){
+      el.innerHTML = `Hai accesso da amministratore: non sei tra i membri che votano per questa scheda.`;
+    } else {
+      el.innerHTML = `Accedi con il tuo numero di telefono per votare la tua disponibilità.`;
+    }
   }
 
   function renderSlotPills(){
@@ -526,12 +748,12 @@
   function renderAnnouncements(){
     const el = document.getElementById('announcementsList');
     if(state.announcements.length === 0){
-      el.innerHTML = '<p class="empty-note">Nessun avviso al momento.</p>';
+      el.innerHTML = '<p class="empty-note">Nessun messaggio al momento.</p>';
     } else {
       el.innerHTML = state.announcements.slice().reverse().map(a => `
         <div class="announcement-item">
           ${state.isAdmin ? `<button class="del-x" data-id="${a.id}">✕</button>` : ''}
-          <div>${escapeHtml(a.text)}</div>
+          <div><strong>${escapeHtml(a.author || 'Anonimo')}</strong>: ${escapeHtml(a.text)}</div>
           <span class="a-date">${a.date}</span>
         </div>
       `).join('');
@@ -545,7 +767,7 @@
         });
       }
     }
-    document.getElementById('announceAdmin').classList.toggle('hidden', !state.isAdmin);
+    document.getElementById('announceBox').classList.toggle('hidden', !state.identity);
   }
 
   function renderPlaylist(){
@@ -564,7 +786,8 @@
   function renderModTable(){
     const table = document.getElementById('modTable');
     const headerSlots = SLOT_HOURS.map(h => `<th>${h}</th>`).join('');
-    const rows = state.settings.members.map((name, i) => {
+    const rows = state.settings.members.map((m, i) => {
+      const name = m.name;
       const v = state.votes[i];
       if(!v){
         return `<tr><td class="member-name">${name}</td><td colspan="${SLOT_HOURS.length}"><span class="not-voted-badge">non ha ancora votato</span></td><td class="updated">—</td></tr>`;
@@ -579,7 +802,12 @@
 
   function renderMemberInputsInSettings(){
     const el = document.getElementById('memberInputs');
-    el.innerHTML = state.settings.members.map((m, i) => `<input type="text" data-midx="${i}" value="${escapeHtml(m)}">`).join('');
+    el.innerHTML = state.settings.members.map((m, i) => `
+      <div class="member-row" data-midx="${i}">
+        <input type="text" data-field="name" value="${escapeHtml(m.name)}" placeholder="Nome">
+        <input type="tel" data-field="phone" value="${escapeHtml(m.phone)}" placeholder="Numero di telefono">
+      </div>
+    `).join('');
   }
 
   function escapeHtml(str){
@@ -650,14 +878,25 @@
     }
   }
 
-  function wireEvents(){
-    document.getElementById('memberSelect').onchange = async (e) => {
-      const v = e.target.value;
-      state.currentMemberIdx = v === '' ? null : parseInt(v);
-      if(state.currentMemberIdx !== null) await saveLastMember(state.currentMemberIdx);
-      renderSlotPills();
-    };
+  function openSettingsPanel(){
+    document.getElementById('settingsOverlay').classList.remove('hidden');
+    if(state.isAdmin){
+      document.getElementById('pinGate').classList.add('hidden');
+      document.getElementById('settingsFields').classList.remove('hidden');
+      document.getElementById('inputGroupName').value = state.settings.groupName;
+      document.getElementById('inputTagline').value = state.settings.tagline;
+      document.getElementById('inputAdminPhone').value = state.settings.adminPhone;
+      document.getElementById('inputPlaylist').value = state.settings.playlistUrl;
+      renderMemberInputsInSettings();
+    } else {
+      document.getElementById('pinGate').classList.remove('hidden');
+      document.getElementById('settingsFields').classList.add('hidden');
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinError').classList.add('hidden');
+    }
+  }
 
+  function wireEvents(){
     document.getElementById('selectAllBtn').onclick = () => {
       if(state.currentMemberIdx === null) return;
       persistVote(state.currentMemberIdx, Array(10).fill(true));
@@ -675,9 +914,33 @@
       btn.textContent = willShow ? 'Nascondi dettaglio voti e moderazione ▾' : 'Mostra dettaglio voti e moderazione ▾';
     };
 
-    document.getElementById('settingsBtn').onclick = () => {
-      document.getElementById('settingsOverlay').classList.remove('hidden');
+    document.getElementById('notifBtn').onclick = async () => {
+      if(!('Notification' in window)){
+        alert('Il tuo browser non supporta le notifiche push.');
+        return;
+      }
+      if(Notification.permission === 'default'){
+        const perm = await Notification.requestPermission();
+        updateNotifBtn();
+        if(perm === 'granted'){
+          document.getElementById('notifInfoBanner').classList.add('hidden');
+          fireNotification('🔔 Notifiche attivate', 'Ti avviseremo qui se le prove vengono confermate o se ti scordi di votare. Lascia questa pagina aperta, anche in background.');
+          startPolling();
+        }
+      } else if(Notification.permission === 'granted'){
+        alert('Le notifiche sono già attive su questo dispositivo. Per disattivarle, cambia i permessi del sito nelle impostazioni del browser.');
+      } else {
+        alert('Le notifiche sono bloccate dal browser. Abilita i permessi per questo sito per riceverle.');
+      }
     };
+
+    document.getElementById('dismissNotifBanner').onclick = async () => {
+      document.getElementById('notifInfoBanner').classList.add('hidden');
+      try{ await window.storage.set('notif_banner_dismissed', JSON.stringify(true), false); }catch(e){}
+    };
+
+    document.getElementById('settingsBtn').onclick = openSettingsPanel;
+    document.getElementById('openSettingsFromLogin').onclick = openSettingsPanel;
     document.getElementById('closeSettingsBtn').onclick = () => {
       document.getElementById('settingsOverlay').classList.add('hidden');
     };
@@ -685,16 +948,30 @@
       if(e.target.id === 'settingsOverlay') e.currentTarget.classList.add('hidden');
     };
 
+    document.getElementById('loginBtn').onclick = async () => {
+      const raw = document.getElementById('loginPhoneInput').value;
+      const identity = resolveIdentityFromPhone(raw);
+      const err = document.getElementById('loginError');
+      if(!identity){
+        err.classList.remove('hidden');
+        return;
+      }
+      err.classList.add('hidden');
+      await saveStoredPhone(raw);
+      applyIdentity(identity);
+      document.getElementById('loginOverlay').classList.add('hidden');
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await clearStoredPhone();
+      clearIdentity();
+    };
+
     document.getElementById('unlockBtn').onclick = () => {
       const val = document.getElementById('pinInput').value;
       if(val === ADMIN_PIN){
         state.isAdmin = true;
-        document.getElementById('pinGate').classList.add('hidden');
-        document.getElementById('settingsFields').classList.remove('hidden');
-        document.getElementById('inputGroupName').value = state.settings.groupName;
-        document.getElementById('inputTagline').value = state.settings.tagline;
-        document.getElementById('inputPlaylist').value = state.settings.playlistUrl;
-        renderMemberInputsInSettings();
+        openSettingsPanel();
         renderAnnouncements();
         renderPlaylist();
       } else {
@@ -703,29 +980,40 @@
     };
 
     document.getElementById('saveSettingsBtn').onclick = async () => {
+      const memberRows = Array.from(document.querySelectorAll('#memberInputs .member-row'));
+      const members = memberRows.map(row => ({
+        name: row.querySelector('[data-field="name"]').value.trim() || 'Membro',
+        phone: row.querySelector('[data-field="phone"]').value.trim()
+      }));
       const newSettings = {
         groupName: document.getElementById('inputGroupName').value.trim() || state.settings.groupName,
         tagline: document.getElementById('inputTagline').value.trim(),
-        members: Array.from(document.querySelectorAll('#memberInputs input')).map(i => i.value.trim() || 'Membro'),
+        adminPhone: document.getElementById('inputAdminPhone').value.trim(),
+        members,
         playlistUrl: document.getElementById('inputPlaylist').value.trim()
       };
       state.settings = newSettings;
       await saveSettings(newSettings);
       document.getElementById('groupName').textContent = newSettings.groupName;
       document.getElementById('groupTagline').textContent = newSettings.tagline;
-      renderMemberSelect();
       renderPlaylist();
       renderModTable();
+      renderHero();
+      if(state.identity){
+        const refreshed = resolveIdentityFromPhone(state.identity.phone);
+        if(refreshed) applyIdentity(refreshed);
+      }
       document.getElementById('saveSettingsStatus').textContent = '✓ Impostazioni salvate';
       setTimeout(() => { document.getElementById('saveSettingsStatus').textContent=''; }, 2500);
     };
 
     document.getElementById('addAnnouncementBtn').onclick = async () => {
+      if(!state.identity) return;
       const ta = document.getElementById('newAnnouncement');
       const text = ta.value.trim();
       if(!text) return;
       const dateLabel = new Intl.DateTimeFormat('it-IT', {timeZone: TIMEZONE, day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}).format(new Date());
-      state.announcements.push({ id: 'a' + Date.now(), text, date: dateLabel });
+      state.announcements.push({ id: 'a' + Date.now(), text, date: dateLabel, author: state.identity.name });
       await saveAnnouncements(state.announcements);
       ta.value = '';
       renderAnnouncements();
@@ -744,13 +1032,21 @@
     document.getElementById('groupName').textContent = state.settings.groupName;
     document.getElementById('groupTagline').textContent = state.settings.tagline;
 
-    const lastMember = await loadLastMember();
-    if(lastMember !== null && lastMember < state.settings.members.length){
-      state.currentMemberIdx = lastMember;
+    const storedPhone = await loadStoredPhone();
+    if(storedPhone){
+      const identity = resolveIdentityFromPhone(storedPhone);
+      if(identity){
+        state.identity = identity;
+        state.isAdmin = identity.isAdmin;
+        state.currentMemberIdx = identity.memberIdx;
+      }
+    }
+    if(!state.identity){
+      document.getElementById('loginOverlay').classList.remove('hidden');
     }
 
     renderDayTabs();
-    renderMemberSelect();
+    renderVoteIdentity();
     renderAnnouncements();
     renderPlaylist();
 
@@ -760,6 +1056,11 @@
     renderModTable();
 
     wireEvents();
+    updateNotifBtn();
+    maybeShowNotifBanner();
+    if('Notification' in window && Notification.permission === 'granted'){
+      startPolling();
+    }
   }
 
   init();

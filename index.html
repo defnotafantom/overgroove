@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overgroove — Console Presenze v4.0</title>
+<title>Overgroove — Console Presenze v4.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -24,7 +24,7 @@
     --radius-md: 10px;
     --radius-sm: 6px;
   }
-  *{box-sizing:border-box; selection-background: var(--accent); selection-color: #fff;}
+  *{box-sizing:border-box;}
   html,body{margin:0;padding:0;scroll-behavior: smooth;}
   body{
     background: 
@@ -172,7 +172,7 @@
   .track-info { display: flex; flex-direction: column; gap:1px; min-width: 0; }
   .track-name { font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .track-type { font-size: 0.68rem; color: var(--ink-muted); text-transform: uppercase; font-family: 'IBM Plex Mono'; }
-  .track-actions { display: flex; gap: 10px; align-items: center; flex-none: true; }
+  .track-actions { display: flex; gap: 10px; align-items: center; }
   .play-audio-btn { background: none; border: none; color: var(--green); cursor: pointer; font-size: 0.75rem; text-transform: uppercase; font-family: inherit; font-weight: 600; letter-spacing: 0.04em; }
 
   /* ---------- MATRIX TABLES ---------- */
@@ -265,7 +265,7 @@
       </div>
 
       <div class="card">
-        <h2>Bacheca Commenti & Note Tecnica</h2>
+        <h2>Bacheca Commenti & Note Tecniche</h2>
         <div id="chatList" class="chat-list"></div>
         <div style="display:flex; gap:8px; flex-direction:column; margin-top:2px;">
           <textarea id="txComment" rows="2" placeholder="Scrivi una nota di riferimento sulla bacheca..."></textarea>
@@ -377,7 +377,7 @@
 </div>
 
 <footer class="footer">
-  <p>OVERGROOVE CORE v4.0 // MATRIX SUBSYSTEM ACTIVE</p>
+  <p>OVERGROOVE CORE v4.1 // MATRIX SUBSYSTEM ACTIVE</p>
 </footer>
 
 <script>
@@ -406,7 +406,6 @@
     commentDelayMs: 2000 
   };
 
-  // NUOVA CONFIGURAZIONE SLOT AD 1 ORA DA RICHIESTA (10:00 - 20:00)
   const SLOTS = [
     "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00", 
     "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00", 
@@ -639,7 +638,6 @@
     setTimeout(() => { status.textContent = ""; }, 1500);
   }
 
-  // ---------- RENDERING TABELLA MATRICE SETTIMANALE ----------
   function renderMatrixTable() {
     const headerRow = document.getElementById("matrixHeader");
     const bodyContainer = document.getElementById("matrixBody");
@@ -659,7 +657,7 @@
     });
 
     state.settings.members.forEach(member => {
-      const tr = document.createElement("document").createElement("tr");
+      const tr = document.createElement("tr");
 
       const tdName = document.createElement("td");
       tdName.className = "sticky-col member-name";

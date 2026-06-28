@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overgroove — Presenze & Controllo</title>
+<title>Overgroove — Presenze & Modifica Avanzata</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -50,11 +50,11 @@
   }
   .brand{ display:flex; align-items:center; gap:14px; min-width:0; }
   .brand-logo{
-    width:46px; height:46px; flex:none; border-radius:50%;
-    box-shadow: 0 0 15px rgba(255, 59, 48, 0.3);
+    width:16px; height:16px; flex:none; border-radius:50%;
+    box-shadow: 0 0 15px rgba(255, 59, 48, 0.6);
   }
-  .brand h1{ font-size:2rem; margin:0; line-height:1; }
-  .tagline{ margin:4px 0 0; font-size:0.8rem; color:var(--ink-muted); }
+  .brand h1{ font-size:2.2rem; margin:0; line-height:1; }
+  .tagline{ margin:4px 0 0; font-size:0.85rem; color:var(--ink-muted); }
   .topbar-right{ display:flex; align-items:center; gap:12px; }
   .clock{ color:var(--ink-muted); font-size:0.85rem; font-weight:500; }
   
@@ -64,7 +64,6 @@
     display:flex; align-items:center; justify-content:center; transition: all 0.2s ease;
   }
   .icon-btn:hover{ border-color:var(--accent); background:var(--bg-panel-3); }
-  .icon-btn.notif-on{ border-color:var(--green); color:var(--green); }
 
   /* ---------- DAY TABS ---------- */
   .day-tabs{ display:flex; gap:10px; overflow-x:auto; padding:16px 0 8px; scrollbar-width: none; }
@@ -114,7 +113,6 @@
     transition: border-color 0.2s ease;
   }
   select:focus, input:focus, textarea:focus { outline:none; border-color:var(--accent); }
-  select{ width:auto; min-width:180px; }
   
   .slot-pills{ display:flex; flex-wrap:wrap; gap:8px; }
   .slot-pill{
@@ -131,10 +129,8 @@
   .ghost-btn{ background:transparent; border:1px solid var(--line); color:var(--ink-muted); padding:10px 14px; border-radius:12px; cursor:pointer; font-size:0.85rem; }
   .ghost-btn:hover{ border-color:var(--ink); color:var(--ink); }
 
-  /* ---------- LE DUE BACHECHE ---------- */
+  /* ---------- BACHECHE ---------- */
   .board-container { display: flex; flex-direction: column; gap:16px; }
-  
-  /* Bacheca Avvisi (Stile Mail) */
   .mail-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y:auto; }
   .mail-item {
     background: var(--bg-panel-2); border: 1px solid var(--line); border-radius: 12px;
@@ -147,14 +143,13 @@
   .mail-subject { font-size: 0.85rem; color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mail-date { font-size: 0.72rem; color: var(--ink-muted); font-family:'IBM Plex Mono'; flex-none; }
 
-  /* Bacheca Commenti (Chat con delay) */
   .chat-list { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y:auto; padding-right:4px; }
   .chat-item { background: var(--bg-panel-2); border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; border-left: 3px solid var(--ink-muted); }
   .chat-item.self { border-left-color: var(--accent); }
   .chat-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 4px; }
   .chat-author { font-weight: 600; color: var(--ink); }
 
-  /* ---------- PLAYLIST CARDS ---------- */
+  /* ---------- PLAYLIST ---------- */
   .playlist-tracks { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
   .track-item {
     display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel-2);
@@ -173,15 +168,26 @@
   .log-item { border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 4px; color: var(--ink-muted); }
   .log-item span { color: var(--accent); }
 
-  /* MODERATION TABLE */
+  /* ---------- TABELLA RIASSUNTIVA STILE MATRICE ---------- */
   .mod-card{ margin-top:20px; }
   .table-scroll{ overflow-x:auto; }
-  table{ border-collapse:collapse; width:100%; font-family:'IBM Plex Mono', monospace; font-size:0.8rem; }
-  th,td{ padding:10px 12px; border-bottom:1px solid var(--line); text-align:center; }
-  th{ color:var(--ink-muted); font-weight:500; }
-  td.member-name{ text-align:left; color:var(--ink); font-weight: 500; }
-  td.yes{ color:var(--green); font-weight: 600; }
-  td.no{ color:var(--ink-muted); opacity:0.4; }
+  table{ border-collapse:collapse; width:100%; font-size:0.85rem; min-width: 700px; }
+  th,td{ padding:14px 12px; border-bottom:1px solid var(--line); text-align:center; vertical-align: middle; }
+  th{ background: var(--bg-panel-2); color:var(--ink); font-weight:600; font-size: 0.85rem; }
+  th.sticky-col, td.sticky-col { text-align:left; position: sticky; left: 0; background: var(--bg-panel); min-width: 130px; border-right: 1px solid var(--line); z-index: 5; }
+  th.sticky-col { background: var(--bg-panel-2); }
+  td.member-name{ color:var(--ink); font-weight: 600; }
+  td.has-votes { background: rgba(52, 199, 89, 0.03); }
+  .cell-voted-slots { font-family:'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--green); margin-top: 4px; display: block; line-height: 1.3; }
+  .cell-empty { color: var(--ink-muted); opacity: 0.3; }
+
+  /* ---------- COMPONENT EDITOR IN SETTINGS ---------- */
+  .member-editor-row {
+    background: var(--bg-panel-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; position: relative;
+  }
+  .member-editor-row .btn-del-mem { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem; }
+  .inline-fields { display: flex; gap: 8px; }
 
   /* OVERLAYS & MODALS */
   .modal-overlay {
@@ -192,7 +198,7 @@
   .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; color:var(--ink-muted); font-size:1.2rem; cursor:pointer; }
   
   .settings-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:flex-start; justify-content:flex-end; z-index:50; padding:16px; }
-  .settings-panel { background:var(--bg-panel); border:1px solid var(--line); border-radius:20px; width:100%; max-width:390px; padding:24px; max-height:90vh; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+  .settings-panel { background:var(--bg-panel); border:1px solid var(--line); border-radius:20px; width:100%; max-width:420px; padding:24px; max-height:92vh; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
 
   .footer{ margin-top:40px; text-align:center; color:var(--ink-muted); font-size:0.8rem; }
 </style>
@@ -202,7 +208,7 @@
 
   <header class="topbar">
     <div class="brand">
-      <div class="brand-logo" style="background:var(--accent); width:12px; height:12px;"></div>
+      <div class="brand-logo" style="background:var(--accent);"></div>
       <div>
         <h1 id="groupName">Overgroove</h1>
         <div id="groupTagline" class="tagline">Pianificazione Presenze</div>
@@ -210,8 +216,7 @@
     </div>
     <div class="topbar-right">
       <div id="liveClock" class="clock mono">00:00:00</div>
-      <button id="btnNotif" class="icon-btn" title="Notifiche">🔔</button>
-      <button id="btnSettings" class="icon-btn" title="Impostazioni">⚙️</button>
+      <button id="btnSettings" class="icon-btn" title="Impostazioni & Editor">⚙️</button>
     </div>
   </header>
 
@@ -234,7 +239,6 @@
   <div class="dashboard-grid">
     
     <div class="board-container">
-      
       <div class="card">
         <h2>Inserisci la tua Disponibilità</h2>
         <div class="vote-controls">
@@ -258,14 +262,13 @@
     </div>
 
     <div class="side-col">
-      
       <div class="card">
         <h2>Bacheca Avvisi Importanti</h2>
         <div id="mailList" class="mail-list"></div>
         
         <div id="adminNoticeBox" class="hidden" style="display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--line); padding-top:10px;">
-          <input type="text" id="noticeTitle" placeholder="Titolo dell'avviso (es. Cambio Sede)">
-          <textarea id="noticeBody" placeholder="Corpo del testo/Dettagli dell'avviso..."></textarea>
+          <input type="text" id="noticeTitle" placeholder="Titolo dell'avviso">
+          <textarea id="noticeBody" placeholder="Corpo dell'avviso..."></textarea>
           <button id="btnSendNotice" class="primary-btn" style="padding:8px 14px; font-size:0.85rem;">Pubblica Avviso</button>
         </div>
       </div>
@@ -275,7 +278,7 @@
         <div id="playlistTracks" class="playlist-tracks"></div>
         
         <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--line); padding-top:10px;">
-          <input type="text" id="trackUrlInput" placeholder="Aggiungi link esterno (Spotify / YouTube)">
+          <input type="text" id="trackUrlInput" placeholder="Link esterno (Spotify / YouTube)">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
             <label class="ghost-btn" style="display:inline-block; text-align:center; flex:1; cursor:pointer;">
               📁 Carica File Audio
@@ -286,20 +289,20 @@
         </div>
         <audio id="globalAudioPlayer" controls style="width:100%; margin-top:4px;" class="hidden"></audio>
       </div>
-
     </div>
   </div>
 
   <div class="card mod-card">
-    <h2>Tabella Riassuntiva Presenze</h2>
+    <h2>Tabella Riassuntiva Settimanale</h2>
     <div class="table-scroll">
       <table>
         <thead>
-          <tr id="tableHeader">
-            <th style="text-align:left;">Membro</th>
-          </tr>
+          <tr id="matrixHeader">
+            <th class="sticky-col">Membro</th>
+            </tr>
         </thead>
-        <tbody id="tableBody"></tbody>
+        <tbody id="matrixBody">
+          </tbody>
       </table>
     </div>
   </div>
@@ -329,7 +332,7 @@
   <div class="modal-content">
     <button id="btnNoticeModalClose" class="modal-close">✕</button>
     <h2 id="modalNoticeTitle" style="font-size:1.6rem; color:var(--ink); margin-bottom:4px;">Titolo</h2>
-    <div id="modalNoticeMeta" style="font-size:0.75rem; color:var(--ink-muted); font-family:'IBM Plex Mono'; margin-bottom:14px;">Data autore</div>
+    <div id="modalNoticeMeta" style="font-size:0.75rem; color:var(--ink-muted); font-family:'IBM Plex Mono'; margin-bottom:14px;">Data</div>
     <p id="modalNoticeBody" style="font-size:0.95rem; line-height:1.5; background:var(--bg-panel-2); padding:14px; border-radius:12px; white-space:pre-wrap; margin:0;"></p>
   </div>
 </div>
@@ -337,31 +340,32 @@
 <div id="settingsOverlay" class="settings-overlay hidden">
   <div class="settings-panel">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2>Configurazione</h2>
+      <h2>Editor & Configurazione</h2>
       <button id="btnSettingsClose" class="ghost-btn" style="padding:4px 8px;">Chiudi</button>
     </div>
     
-    <label class="hint" style="margin-top:8px;">Nome Gruppo / Band</label>
+    <h3 style="margin:10px 0 0 0; font-size:1.1rem; color:var(--accent);">Editor Testi Principali</h3>
+    <label class="hint">Nome Gruppo / Band</label>
     <input type="text" id="setGroupName">
     
-    <label class="hint">Tagline</label>
+    <label class="hint">Tagline / Sottotitolo</label>
     <input type="text" id="setTagline">
 
     <div id="settingsAdminSection" class="hidden" style="border-top:1px solid var(--line); padding-top:10px; margin-top:6px;">
-      <h3 style="margin:0 0 8px 0; font-size:1.1rem; color:var(--alert);">Gestione Componenti (Admin)</h3>
-      <div id="memberInputs" style="display:flex; flex-direction:column; gap:6px;"></div>
+      <h3 style="margin:0 0 8px 0; font-size:1.1rem; color:var(--alert);">Gestione Componenti (Membri)</h3>
+      <div id="memberInputsContainer"></div>
+      <button id="btnAddMemberField" class="ghost-btn" style="width:100%; margin-top:8px; border-style:dashed; color:var(--ink);">+ Aggiungi Nuovo Membro</button>
     </div>
     
-    <button id="btnSaveSettings" class="primary-btn" style="margin-top:10px;">Salva Configurazione</button>
+    <button id="btnSaveSettings" class="primary-btn" style="margin-top:14px;">Salva Modifiche</button>
   </div>
 </div>
 
 <footer class="footer">
-  <p>Overgroove Engine v2.5 • Architettura Unificata & Registro di Tracciabilità Integrato</p>
+  <p>Overgroove Engine v3.0 • Matrice Presenze & Configurazione Avanzata Membri</p>
 </footer>
 
 <script>
-  // ---------- CONFIGURAZIONE STATO APPLICATIVO ----------
   const state = {
     settings: {
       groupName: "Overgroove",
@@ -378,27 +382,25 @@
     identity: null, 
     isAdmin: false,
     currentMemberIdx: -1,
-    votes: {}, // Struttura della giornata corrente
-    comments: [], // Lista bacheca commenti generica
-    notices: [], // Lista bacheca avvisi stile email
-    playlist: [], // Lista tracce audio/link
-    logs: [], // Registro di controllo admin
+    votes: {}, 
+    comments: [], 
+    notices: [], 
+    playlist: [], 
+    logs: [], 
     lastCommentTime: 0,
-    commentDelayMs: 4000 // Delay anti-spam di 4 secondi per i commenti
+    commentDelayMs: 3000 
   };
 
   const SLOTS = ["14:00-16:00", "16:00-18:00", "18:00-20:00", "20:00-22:00", "22:00-00:00"];
 
-  // MOCK STORAGE FUNZIONALE (SOSTITUIBILE CON ENDPOINT REMOTE / FIREBASE / LOCALSTORAGE)
   function dbGet(key, defaultVal){
-    const v = localStorage.getItem("og2_" + key);
+    const v = localStorage.getItem("og3_" + key);
     return v ? JSON.parse(v) : defaultVal;
   }
   function dbSet(key, val){
-    localStorage.setItem("og2_" + key, JSON.stringify(val));
+    localStorage.setItem("og3_" + key, JSON.stringify(val));
   }
 
-  // CALCOLO DATE SUCCESSIVE
   function buildNextDays(count) {
     const arr = [];
     const labels = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
@@ -413,7 +415,6 @@
     return arr;
   }
 
-  // GESTIONE REGISTRO ATTIVITÀ LOGS
   function pushLog(actionText) {
     const timestamp = new Date().toLocaleTimeString();
     const user = state.identity ? state.identity.name : "Sconosciuto";
@@ -430,13 +431,11 @@
     container.innerHTML = state.logs.length === 0 ? `<div class="hint">Nessuna azione registrata.</div>` : state.logs.join("");
   }
 
-  // REFRESH DELL'OROLOGIO LIVE
   function updateClock(){
     const n = new Date();
     document.getElementById("liveClock").textContent = n.toTimeString().split(' ')[0];
   }
 
-  // RISOLUZIONE IDENTITÀ TELEFONO O PIN (Risolve bug bacheca vuota)
   function findIdentity(phone, pin) {
     for(let i=0; i<state.settings.members.length; i++){
       const m = state.settings.members[i];
@@ -446,9 +445,7 @@
     return null;
   }
 
-  // ARCHITETTURA UNIFICATA VOTI PER GIORNO (Risolve il problema del sovraccarico)
   function loadVotesForDay(dayKey) {
-    // Ritorna la singola chiave della giornata contendo tutti i voti dei membri
     return dbGet("votes_" + dayKey, {});
   }
 
@@ -456,13 +453,11 @@
     dbSet("votes_" + dayKey, data);
   }
 
-  // INITIALIZZAZIONE APPLICATIVA
   window.addEventListener("DOMContentLoaded", async () => {
     state.days = buildNextDays(7);
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Caricamento impostazioni e dati globali
     state.settings = dbGet("settings", state.settings);
     state.comments = dbGet("global_comments", []);
     state.notices = dbGet("global_notices", []);
@@ -472,7 +467,6 @@
     document.getElementById("groupName").textContent = state.settings.groupName;
     document.getElementById("groupTagline").textContent = state.settings.tagline;
 
-    // Controllo cookie/memoria locale per sessione persistente
     const savedPhone = localStorage.getItem("og_session_phone");
     const savedPin = localStorage.getItem("og_session_pin");
     if(savedPhone || savedPin) {
@@ -496,21 +490,18 @@
   function onUserAuthenticated() {
     document.getElementById("loginOverlay").classList.add("hidden");
     
-    // Mostra pannelli di amministrazione e log se l'utente loggato è l'admin
     if(state.isAdmin) {
       document.getElementById("adminNoticeBox").classList.remove("hidden");
       document.getElementById("logCard").classList.remove("hidden");
       document.getElementById("settingsAdminSection").classList.remove("hidden");
     }
 
-    // Carica dati del giorno corrente
     switchDay(0);
     renderAnnouncementsAndChat();
     renderPlaylist();
     renderLogs();
   }
 
-  // CAMBIO TAB GIORNALIERA
   function switchDay(index) {
     state.currentDayIdx = index;
     renderDayTabs();
@@ -518,7 +509,7 @@
     
     renderHero();
     renderSlotPills();
-    renderModTable();
+    renderMatrixTable(); // Renderizza la nuova griglia riassuntiva
   }
 
   function renderDayTabs() {
@@ -533,17 +524,14 @@
     });
   }
 
-  // ELABORAZIONE VERDETTI HERO BOX
   function renderHero() {
     const dayObj = state.days[state.currentDayIdx];
     document.getElementById("heroDayLabel").textContent = "Disponibilità per: " + dayObj.label;
 
-    // Calcolo dei conteggi per slot orario
     const tallies = {};
     SLOTS.forEach(s => tallies[s] = 0);
     let totalVotedMembers = 0;
 
-    // Scorri i voti memorizzati nell'unica chiave giornaliera
     const votedMembersList = [];
     Object.keys(state.votes).forEach(mName => {
       const slotsSelected = state.votes[mName] || [];
@@ -556,7 +544,6 @@
       }
     });
 
-    // Trova lo slot migliore
     let bestSlot = null;
     let maxVotes = 0;
     SLOTS.forEach(s => {
@@ -591,7 +578,6 @@
     }
   }
 
-  // GENERAZIONE DEI PILLS DI SELEZIONE ORARI
   function renderSlotPills() {
     const container = document.getElementById("slotPills");
     container.innerHTML = "";
@@ -619,54 +605,101 @@
       state.votes[myName].push(slot);
     }
 
-    // Salva nell'unica chiave giornaliera unificata
     const currentDayKey = state.days[state.currentDayIdx].key;
     saveVotesForDay(currentDayKey, state.votes);
     
-    pushLog(`Ha aggiornato i propri slot per la giornata del ${state.days[state.currentDayIdx].label}`);
+    pushLog(`Ha aggiornato i suoi slot per ${state.days[state.currentDayIdx].label}`);
 
-    // Update immediato dell'interfaccia
     renderHero();
     renderSlotPills();
-    renderModTable();
+    renderMatrixTable();
 
     const status = document.getElementById("saveStatus");
-    status.textContent = "✓ Scelte salvate istantaneamente";
-    setTimeout(() => { status.textContent = ""; }, 2500);
+    status.textContent = "✓ Voto salvato";
+    setTimeout(() => { status.textContent = ""; }, 2000);
   }
 
-  // COMPILAZIONE DELLE DUE BACHECHE (AVVISI & CHAT)
+  // ---------- IMPLEMENTAZIONE NUOVA TABELLA SETTIMANALE MATRICE ----------
+  function renderMatrixTable() {
+    const headerRow = document.getElementById("matrixHeader");
+    const bodyContainer = document.getElementById("matrixBody");
+
+    // Svuota colonne dei giorni precedenti mantenendo solo la prima colonna "Membro"
+    while(headerRow.children.length > 1) { headerRow.removeChild(headerRow.lastChild); }
+    bodyContainer.innerHTML = "";
+
+    // Carica preventivamente i voti di tutti i 7 giorni per non fare letture sincrone ripetute
+    const allDaysVotes = {};
+    state.days.forEach(day => {
+      allDaysVotes[day.key] = loadVotesForDay(day.key);
+    });
+
+    // Inietta i giorni come intestazioni di colonna
+    state.days.forEach(day => {
+      const th = document.createElement("th");
+      th.textContent = day.label;
+      headerRow.appendChild(th);
+    });
+
+    // Costruisci le righe per ogni membro censito nel sistema
+    state.settings.members.forEach(member => {
+      const tr = document.createElement("tr");
+
+      // Prima colonna fissa con il nome del componente
+      const tdName = document.createElement("td");
+      tdName.className = "sticky-col member-name";
+      tdName.textContent = member.name + (member.isAdmin ? " (👑)" : "");
+      tr.appendChild(tdName);
+
+      // Colonne successive corrispondenti alle preferenze dei 7 giorni
+      state.days.forEach(day => {
+        const tdDay = document.createElement("td");
+        const dayVotes = allDaysVotes[day.key] || {};
+        const memberSlots = dayVotes[member.name] || [];
+
+        if(memberSlots.length > 0) {
+          tdDay.className = "has-votes";
+          // Unisce i singoli slot orari mandandoli a capo se multipli
+          tdDay.innerHTML = `✅ <span class="cell-voted-slots">${memberSlots.join("<br>")}</span>`;
+        } else {
+          tdDay.innerHTML = `<span class="cell-empty">—</span>`;
+        }
+        tr.appendChild(tdDay);
+      });
+
+      bodyContainer.appendChild(tr);
+    });
+  }
+
+  // ---------- ALTRE FUNZIONALITÀ DI BORDO ----------
   function renderAnnouncementsAndChat() {
-    // 1. BACHECA AVVISI (Stile Mail)
     const mailList = document.getElementById("mailList");
     mailList.innerHTML = "";
     if(state.notices.length === 0) {
-      mailList.innerHTML = `<div class="hint" style="padding:10px;">Nessun avviso ufficiale presente nella bacheca mail.</div>`;
+      mailList.innerHTML = `<div class="hint" style="padding:10px;">Nessun avviso ufficiale presente.</div>`;
     } else {
       state.notices.forEach((n, idx) => {
         const item = document.createElement("div");
         item.className = "mail-item";
         item.onclick = () => openNoticeModal(n);
-
         item.innerHTML = `
           <div class="mail-meta">
             <span class="mail-title">${n.title}</span>
-            <span class="mail-subject">${n.body.substring(0, 45)}${n.body.length > 45 ? '...' : ''}</span>
+            <span class="mail-subject">${n.body.substring(0, 40)}...</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
             <span class="mail-date">${n.date}</span>
-            ${state.isAdmin ? `<button class="del-track-btn" onclick="event.stopPropagation(); deleteNotice(${idx});">✕</button>` : ''}
+            ${state.isAdmin ? `<button class="del-track-btn" onclick="event.stopPropagation(); deleteNotice(${idx});">🗑️</button>` : ''}
           </div>
         `;
         mailList.appendChild(item);
       });
     }
 
-    // 2. BACHECA COMMENTI (Chat con tracciabilità)
     const chatList = document.getElementById("chatList");
     chatList.innerHTML = "";
     if(state.comments.length === 0) {
-      chatList.innerHTML = `<div class="hint" style="padding:10px;">Ancora nessun commento. Scrivi qualcosa qui sotto!</div>`;
+      chatList.innerHTML = `<div class="hint" style="padding:10px;">Nessun commento inserito.</div>`;
     } else {
       state.comments.forEach(c => {
         const item = document.createElement("div");
@@ -684,107 +717,82 @@
     }
   }
 
-  // LOGICA INVIO COMMENTO CON DELAY ANTI-SPAM
   function handleSendComment() {
     const tx = document.getElementById("txComment");
     const text = tx.value.trim();
     if(!text) return;
 
     const now = Date.now();
-    const elapsed = now - state.lastCommentTime;
-    if(elapsed < state.commentDelayMs) {
-      const remaining = Math.ceil((state.commentDelayMs - elapsed) / 1000);
-      const hintSpan = document.getElementById("chatDelayHint");
-      hintSpan.textContent = `Attendi ${remaining}s prima di ricommentare`;
-      setTimeout(() => { hintSpan.textContent = ""; }, 2000);
+    if(now - state.lastCommentTime < state.commentDelayMs) {
+      document.getElementById("chatDelayHint").textContent = `Attendi qualche secondo...`;
+      setTimeout(() => { document.getElementById("chatDelayHint").textContent = ""; }, 2000);
       return;
     }
 
     const timeString = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    state.comments.push({
-      author: state.identity.name,
-      text: text,
-      time: timeString
-    });
-
+    state.comments.push({ author: state.identity.name, text: text, time: timeString });
     state.lastCommentTime = now;
     dbSet("global_comments", state.comments);
     tx.value = "";
     
-    pushLog(`Ha inviato un messaggio in bacheca commenti: "${text.substring(0,20)}..."`);
+    pushLog(`Ha scritto nei commenti: "${text.substring(0,15)}..."`);
     renderAnnouncementsAndChat();
   }
 
-  // LOGICA AVVISI ADMIN
   function handleSendNotice() {
     const titleInput = document.getElementById("noticeTitle");
     const bodyInput = document.getElementById("noticeBody");
-    const title = titleInput.value.trim();
-    const body = bodyInput.value.trim();
+    if(!titleInput.value.trim() || !bodyInput.value.trim()) return;
 
-    if(!title || !body) return;
-
-    const dateString = new Date().toLocaleDateString([], {day: '2-digit', month: '2-digit'});
     state.notices.unshift({
-      title: title,
-      body: body,
-      date: dateString,
+      title: titleInput.value.trim(),
+      body: bodyInput.value.trim(),
+      date: new Date().toLocaleDateString([], {day:'2-digit', month:'2-digit'}),
       author: state.identity.name
     });
 
     dbSet("global_notices", state.notices);
     titleInput.value = "";
     bodyInput.value = "";
-
-    pushLog(`Ha pubblicato un nuovo avviso ufficiale: "${title}"`);
+    pushLog(`Ha pubblicato l'avviso: "${state.notices[0].title}"`);
     renderAnnouncementsAndChat();
   }
 
   function deleteNotice(index) {
-    const removed = state.notices.splice(index, 1);
+    const rem = state.notices.splice(index, 1);
     dbSet("global_notices", state.notices);
-    pushLog(`Ha eliminato l'avviso ufficiale: "${removed[0].title}"`);
+    pushLog(`Ha eliminato l'avviso: "${rem[0].title}"`);
     renderAnnouncementsAndChat();
   }
 
-  // FINESTRA IN SOVRIMPRESSIONE PER LEGGERNE IL CONTENUTO
   function openNoticeModal(notice) {
     document.getElementById("modalNoticeTitle").textContent = notice.title;
-    document.getElementById("modalNoticeMeta").textContent = `Pubblicato il: ${notice.date} da ${notice.author || 'Admin'}`;
+    document.getElementById("modalNoticeMeta").textContent = `Inserito da ${notice.author || 'Admin'} il ${notice.date}`;
     document.getElementById("modalNoticeBody").textContent = notice.body;
     document.getElementById("noticeModal").classList.remove("hidden");
   }
 
-  // CARD PLAYLIST AUDIO E LINK ESTERNI
   function renderPlaylist() {
-    const tracksContainer = document.getElementById("playlistTracks");
-    tracksContainer.innerHTML = "";
-
+    const container = document.getElementById("playlistTracks");
+    container.innerHTML = "";
     if(state.playlist.length === 0) {
-      tracksContainer.innerHTML = `<div class="hint" style="padding:10px;">Nessun brano caricato o collegato.</div>`;
+      container.innerHTML = `<div class="hint" style="padding:10px;">Nessuna traccia presente.</div>`;
     } else {
-      state.playlist.forEach((track, idx) => {
+      state.playlist.forEach((t, idx) => {
         const item = document.createElement("div");
         item.className = "track-item";
-
-        let actionHtml = "";
-        if(track.type === "file") {
-          actionHtml = `<button class="play-audio-btn" onclick="playLocalTrack(${idx})">▶ Ascolta</button>`;
-        } else {
-          actionHtml = `<a href="${track.url}" target="_blank" class="ghost-btn" style="text-decoration:none; padding:4px 8px; font-size:0.75rem; border-color:var(--green); color:var(--green);">🔗 Apri Link</a>`;
-        }
-
+        let act = t.type === "file" ? `<button class="play-audio-btn" onclick="playLocalTrack(${idx})">▶ Play</button>` : `<a href="${t.url}" target="_blank" class="ghost-btn" style="text-decoration:none; padding:4px 8px; color:var(--green); border-color:var(--green);">🔗 Link</a>`;
         item.innerHTML = `
           <div class="track-info">
-            <span class="track-name">${track.name}</span>
-            <span class="track-type">${track.type} source</span>
+            <span class="track-name">${t.name}</span>
+            <span class="track-type">${t.type}</span>
           </div>
           <div class="track-actions">
-            ${actionHtml}
+            ${act}
             ${state.isAdmin ? `<button class="del-track-btn" onclick="deleteTrack(${idx})">✕</button>` : ""}
           </div>
         `;
-        tracksContainer.appendChild(item);
+        container.appendChild(item);
       });
     }
   }
@@ -792,99 +800,79 @@
   function handleAddTrack() {
     const urlInput = document.getElementById("trackUrlInput");
     const fileInput = document.getElementById("trackFileInput");
-    const url = urlInput.value.trim();
 
-    if(url) {
-      // Aggiunta tramite link esterno standard
-      let name = url.includes("spotify") ? "Traccia Spotify" : (url.includes("youtube") ? "Video YouTube" : "Collegamento Esterno");
-      state.playlist.push({ name: name, url: url, type: "link" });
+    if(urlInput.value.trim()) {
+      let url = urlInput.value.trim();
+      let n = url.includes("spotify") ? "Spotify" : "Link Audio";
+      state.playlist.push({ name: n, url: url, type: "link" });
       urlInput.value = "";
       dbSet("global_playlist", state.playlist);
-      pushLog(`Ha inserito un link alla playlist: ${url}`);
+      pushLog(`Aggiunto link playlist: ${url}`);
       renderPlaylist();
     } else if(fileInput.files.length > 0) {
-      // Aggiunta tramite file audio locale dell'utente
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        state.playlist.push({
-          name: file.name,
-          audioData: e.target.result, // Stringa Base64 dell'audio caricato localmente
-          type: "file"
-        });
+      const f = fileInput.files[0];
+      const r = new FileReader();
+      r.onload = function(e) {
+        state.playlist.push({ name: f.name, audioData: e.target.result, type: "file" });
         dbSet("global_playlist", state.playlist);
-        pushLog(`Ha caricato un file audio nella playlist: "${file.name}"`);
+        pushLog(`Caricato file audio: ${f.name}`);
         fileInput.value = "";
         renderPlaylist();
       };
-      reader.readAsDataURL(file);
+      r.readAsDataURL(f);
     }
   }
 
-  function playLocalTrack(index) {
-    const track = state.playlist[index];
-    if(!track || !track.audioData) return;
-    const player = document.getElementById("globalAudioPlayer");
-    player.src = track.audioData;
-    player.classList.remove("hidden");
-    player.play();
+  function playLocalTrack(idx) {
+    const p = document.getElementById("globalAudioPlayer");
+    p.src = state.playlist[idx].audioData;
+    p.classList.remove("hidden");
+    p.play();
   }
 
-  function deleteTrack(index) {
-    const removed = state.playlist.splice(index, 1);
+  function deleteTrack(idx) {
+    state.playlist.splice(idx, 1);
     dbSet("global_playlist", state.playlist);
-    pushLog(`Ha rimosso dalla playlist il brano: "${removed[0].name}"`);
     renderPlaylist();
     document.getElementById("globalAudioPlayer").classList.add("hidden");
   }
 
-  // GENERAZIONE DELLA TABELLA DELLE PRESENZE
-  function renderModTable() {
-    const header = document.getElementById("tableHeader");
-    const body = document.getElementById("tableBody");
-    
-    // Ripulisci intestazioni dinamiche precedenti
-    while(header.children.length > 1) { header.removeChild(header.lastChild); }
-    body.innerHTML = "";
+  // ---------- GESTIONE COMPONENTI E CONFIGURAZIONE (EDITOR DINAMICO) ----------
+  function renderMemberEditors() {
+    const container = document.getElementById("memberInputsContainer");
+    container.innerHTML = "";
 
-    // Aggiungi colonne degli slot orari
-    SLOTS.forEach(s => {
-      const th = document.createElement("th");
-      th.textContent = s;
-      header.appendChild(th);
-    });
-
-    // Compila le righe per ogni membro del gruppo
-    state.settings.members.forEach(m => {
-      const tr = document.createElement("document");
-      const row = document.createElement("tr");
-      
-      const tdName = document.createElement("td");
-      tdName.className = "member-name";
-      tdName.textContent = m.name + (m.isAdmin ? " (Admin)" : "");
-      row.appendChild(tdName);
-
-      const mVotes = state.votes[m.name] || [];
-
-      SLOTS.forEach(slot => {
-        const tdSlot = document.createElement("td");
-        if(mVotes.includes(slot)) {
-          tdSlot.className = "yes";
-          tdSlot.textContent = "SI";
-        } else {
-          tdSlot.className = "no";
-          tdSlot.textContent = "—";
-        }
-        row.appendChild(tdSlot);
-      });
-
-      body.appendChild(row);
+    state.settings.members.forEach((m, idx) => {
+      const div = document.createElement("div");
+      div.className = "member-editor-row";
+      div.innerHTML = `
+        <button class="btn-del-mem" title="Rimuovi Componente" onclick="removeMemberFromSettings(${idx})">🗑️</button>
+        <div class="inline-fields">
+          <input type="text" placeholder="Nome" value="${m.name}" id="editMemName_${idx}">
+          <input type="text" placeholder="PIN" style="width:80px;" value="${m.pin}" id="editMemPin_${idx}">
+        </div>
+        <input type="text" placeholder="Telefono" value="${m.phone || ''}" id="editMemPhone_${idx}">
+        <label style="font-size:0.75rem; display:flex; align-items:center; gap:6px; margin-top:2px;">
+          <input type="checkbox" id="editMemAdmin_${idx}" ${m.isAdmin ? 'checked' : ''}> Imposta come Admin del gruppo
+        </label>
+      `;
+      container.appendChild(div);
     });
   }
 
-  // CONFIGURAZIONE EVENTI E COUPLING DELLE VIEW
+  function removeMemberFromSettings(idx) {
+    if(state.settings.members.length <= 1) {
+      alert("Deve esserci almeno un membro all'interno del gruppo!");
+      return;
+    }
+    const confirmDel = confirm(`Sei sicuro di voler rimuovere ${state.settings.members[idx].name}?`);
+    if(confirmDel) {
+      state.settings.members.splice(idx, 1);
+      renderMemberEditors();
+    }
+  }
+
   function wireEvents() {
-    // Bottone Login
     document.getElementById("btnDoLogin").onclick = () => {
       const phone = document.getElementById("loginPhone").value.trim();
       const pin = document.getElementById("loginPin").value.trim();
@@ -894,37 +882,27 @@
         state.identity = iden;
         state.isAdmin = iden.isAdmin;
         state.currentMemberIdx = iden.memberIdx;
-        
-        // Memorizza le chiavi di login per i successivi accessi automatici
         if(phone) localStorage.setItem("og_session_phone", phone);
         if(pin) localStorage.setItem("og_session_pin", pin);
-        
         onUserAuthenticated();
-        pushLog("Ha effettuato l'accesso all'applicazione");
+        pushLog("Ha effettuato l'accesso al sistema");
       } else {
-        document.getElementById("loginError").textContent = "Errore: Recapiti o PIN non validi.";
+        document.getElementById("loginError").textContent = "PIN o Telefono errati.";
       }
     };
 
-    // Bottoni Impostazioni Overlay
     document.getElementById("btnSettings").onclick = () => {
       document.getElementById("setGroupName").value = state.settings.groupName;
       document.getElementById("setTagline").value = state.settings.tagline;
-      
       if(state.isAdmin) {
-        const container = document.getElementById("memberInputs");
-        container.innerHTML = "";
-        state.settings.members.forEach((m, idx) => {
-          const row = document.createElement("div");
-          row.className = "member-row";
-          row.innerHTML = `
-            <input type="text" value="${m.name}" onchange="updateMemberData(${idx}, 'name', this.value)">
-            <input type="text" value="${m.pin}" style="width:70px;" onchange="updateMemberData(${idx}, 'pin', this.value)">
-          `;
-          container.appendChild(row);
-        });
+        renderMemberEditors();
       }
       document.getElementById("settingsOverlay").classList.remove("hidden");
+    };
+
+    document.getElementById("btnAddMemberField").onclick = () => {
+      state.settings.members.push({ name: "Nuovo", phone: "", pin: "0000", isAdmin: false });
+      renderMemberEditors();
     };
 
     document.getElementById("btnSettingsClose").onclick = () => {
@@ -932,31 +910,45 @@
     };
 
     document.getElementById("btnSaveSettings").onclick = () => {
-      state.settings.groupName = document.getElementById("setGroupName").value;
-      state.settings.tagline = document.getElementById("setTagline").value;
+      // Salva testi principali (Editor Titolo/Sottotitolo)
+      state.settings.groupName = document.getElementById("setGroupName").value.trim() || "Overgroove";
+      state.settings.tagline = document.getElementById("setTagline").value.trim() || "";
+
+      // Raccoglie i dati aggiornati dei componenti modificati nell'editor
+      if(state.isAdmin) {
+        const updatedMembers = [];
+        state.settings.members.forEach((m, idx) => {
+          const nameVal = document.getElementById(`editMemName_${idx}`).value.trim();
+          const pinVal = document.getElementById(`editMemPin_${idx}`).value.trim();
+          const phoneVal = document.getElementById(`editMemPhone_${idx}`).value.trim();
+          const isAdminVal = document.getElementById(`editMemAdmin_${idx}`).checked;
+          if(nameVal) {
+            updatedMembers.push({ name: nameVal, pin: pinVal, phone: phoneVal, isAdmin: isAdminVal });
+          }
+        });
+        state.settings.members = updatedMembers;
+      }
+
       dbSet("settings", state.settings);
       
+      // Aggiorna l'interfaccia principale immediatamente
       document.getElementById("groupName").textContent = state.settings.groupName;
       document.getElementById("groupTagline").textContent = state.settings.tagline;
       document.getElementById("settingsOverlay").classList.add("hidden");
       
-      pushLog("Ha modificato le impostazioni generali del gruppo");
-      renderModTable();
+      pushLog("Ha modificato i componenti o l'intestazione della bacheca");
+      
+      // Ricarica la vista grafica della griglia riassuntiva
+      renderMatrixTable();
+      renderHero();
     };
 
-    // Modali e chat trigger
     document.getElementById("btnNoticeModalClose").onclick = () => {
       document.getElementById("noticeModal").classList.add("hidden");
     };
     document.getElementById("btnSendComment").onclick = handleSendComment;
     document.getElementById("btnSendNotice").onclick = handleSendNotice;
     document.getElementById("btnAddTrack").onclick = handleAddTrack;
-  }
-
-  function updateMemberData(index, field, value) {
-    if(state.settings.members[index]) {
-      state.settings.members[index][field] = value;
-    }
   }
 </script>
 </body>

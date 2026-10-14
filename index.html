@@ -480,6 +480,7 @@
   </div>
 </div>
 
+<script src="./attendance.js"></script>
 <script>
   // Inizializzazione Database IndexedDB per file Audio Persistenti
   let dbIdx;
@@ -500,14 +501,14 @@
     groupName: "Overgroove",
     tagline: "Console Presenze",
     members: [
-      { name: "Daniele", pin: "0906", isAdmin: true },
-      { name: "Alice", pin: "1111", isAdmin: false },
-      { name: "Elena", pin: "2222", isAdmin: false },
-      { name: "Giorgia", pin: "3333", isAdmin: false },
-      { name: "Miriam", pin: "4444", isAdmin: false },
-      { name: "Miriana", pin: "5555", isAdmin: false },
-      { name: "Sofia", pin: "6666", isAdmin: false },
-      { name: "Sonia", pin: "7777", isAdmin: false }
+      { name: "Daniele", pin: "1234", isAdmin: true },
+      { name: "Demo 2", pin: "1234", isAdmin: false },
+      { name: "Demo 3", pin: "1234", isAdmin: false },
+      { name: "Demo 4", pin: "1234", isAdmin: false },
+      { name: "Demo 5", pin: "1234", isAdmin: false },
+      { name: "Demo 6", pin: "1234", isAdmin: false },
+      { name: "Demo 7", pin: "1234", isAdmin: false },
+      { name: "Demo 8", pin: "1234", isAdmin: false }
     ]
   };
 
@@ -629,29 +630,7 @@
   function loadVotesForDay(dayKey) { return dbGet("votes_" + dayKey, {}); }
   function saveVotesForDay(dayKey, data) { dbSet("votes_" + dayKey, data); }
 
-  function computeDayStats(votes) {
-    const tallies = {}; const usersInSlot = {};
-    SLOTS.forEach(s => { tallies[s] = 0; usersInSlot[s] = []; });
-    let totalVoted = 0;
-    const votedMembersList = [];
-
-    Object.keys(votes).forEach(mName => {
-      const slotsSelected = votes[mName] || [];
-      if(slotsSelected.length > 0) { votedMembersList.push(mName); totalVoted++; }
-      slotsSelected.forEach(s => { if(tallies[s] !== undefined) { tallies[s]++; usersInSlot[s].push(mName); } });
-    });
-
-    let bestSlot = null, maxVotes = 0;
-    SLOTS.forEach(s => { if(tallies[s] > maxVotes) { maxVotes = tallies[s]; bestSlot = s; } });
-
-    let status = 'pending';
-    if(totalVoted > 0) {
-      status = maxVotes >= Math.ceil(state.settings.members.length / 2) ? 'go' : 'no';
-    }
-    return { status, bestSlot, maxVotes, totalVoted, votedMembersList, tallies, usersInSlot };
-  }
-
-  function getDayStatus(dayKey) { return computeDayStats(loadVotesForDay(dayKey)).status; }
+  function getDayStatus(dayKey) { return computeDayStats(loadVotesForDay(dayKey), state.settings.members, SLOTS).status; }
 
   // Sistema di tracciamento e persistenza dello stato online
   function setupOnlineStatuses() {
@@ -716,9 +695,8 @@
     // Guardrail rigido: Assicura l'integrità e l'immutabilità assoluta di Daniele come Amministratore protetto
     let danieleIdx = state.settings.members.findIndex(m => m.name === "Daniele");
     if(danieleIdx === -1) {
-      state.settings.members.unshift({ name: "Daniele", pin: "0906", isAdmin: true });
+      state.settings.members.unshift({ name: "Daniele", pin: DEFAULT_SETTINGS.members[0].pin, isAdmin: true });
     } else {
-      state.settings.members[danieleIdx].pin = "0906";
       state.settings.members[danieleIdx].isAdmin = true;
     }
     dbSet("settings", state.settings);
@@ -868,7 +846,7 @@
     const dayObj = state.days[state.currentDayIdx];
     document.getElementById("heroDayLabel").textContent = dayObj.label;
 
-    const stats = computeDayStats(currentVotes);
+    const stats = computeDayStats(currentVotes, state.settings.members, SLOTS);
 
     const verdictBox = document.getElementById("verdictBox");
     const verdictWord = document.getElementById("verdictWord");
@@ -936,7 +914,7 @@
     container.innerHTML = "";
 
     const totalMembersCount = state.settings.members.length || 1;
-    const stats = computeDayStats(currentVotes);
+    const stats = computeDayStats(currentVotes, state.settings.members, SLOTS);
 
     SLOTS.forEach(slot => {
       const votesCount = stats.tallies[slot];
@@ -1149,7 +1127,7 @@
     state.settings.members.forEach((m, idx) => {
       // Protezione account di Daniele
       if(m.name === "Daniele") {
-        updatedMembers.push({ name: "Daniele", pin: "0906", isAdmin: true });
+        updatedMembers.push({ ...m, isAdmin: true });
         return;
       }
       const nameEl = document.getElementById(`editMemName_${idx}`);
